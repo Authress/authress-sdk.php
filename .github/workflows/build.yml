@@ -1,0 +1,33 @@
+on:
+  push:
+    branches:
+    - main
+    - master
+    - 'release/**'
+  pull_request:
+    branches:
+    - main
+    - master
+    - 'release/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up environment
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 7.4
+        extensions: mbstring, xml, ctype, iconv, intl
+        coverage: xdebug
+
+    - name: Install Composer dependencies
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+    - name: Run Tests
+      run: vendor/bin/phpunit --coverage-text
+    # - name: Deploy package to package repository
+    #   if: github.ref != 'refs/heads/main' && github.event_name == 'push'
+    #   run: git tag $BRANCH_NAME.$BUILD_NUMBER
+
