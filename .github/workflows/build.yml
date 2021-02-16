@@ -27,7 +27,9 @@ jobs:
       run: composer install --no-progress --prefer-dist --optimize-autoloader
     - name: Run Tests
       run: vendor/bin/phpunit --coverage-text
-    # - name: Deploy package to package repository
-    #   if: github.ref != 'refs/heads/main' && github.event_name == 'push'
-    #   run: git tag $BRANCH_NAME.$BUILD_NUMBER
+    - name: Deploy package to package repository
+      if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && github.event_name == 'push'
+      run: |
+        git tag ${GITHUB_REF/release\//}.$GITHUB_RUN_NUMBER
+        git push origin ${GITHUB_REF/release\//}.$GITHUB_RUN_NUMBER
 
