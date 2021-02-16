@@ -6,16 +6,8 @@
          convertWarningsToExceptions="true"
          stopOnFailure="false">
     <testsuites>
-        <testsuite>
-            <directory>./test/Api</directory>
-            <directory>./test/Model</directory>
+        <testsuite name="tests">
+            <directory suffix=".php">./test/Api</directory>
         </testsuite>
     </testsuites>
-
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./lib/Api</directory>
-            <directory suffix=".php">./lib/Model</directory>
-        </whitelist>
-    </filter>
 </phpunit>

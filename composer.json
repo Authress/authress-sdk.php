@@ -29,15 +29,15 @@
         "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "*",
+        "phpunit/phpunit": "^9.5",
         "squizlabs/php_codesniffer": "*",
         "friendsofphp/php-cs-fixer": "*",
         "symfony/phpunit-bridge": "^5.2"
     },
     "autoload": {
-        "psr-4": { "AuthressClient\\" : "lib/" }
+        "psr-4": { "AuthressSdk\\" : "lib/" }
     },
     "autoload-dev": {
-        "psr-4": { "AuthressClient\\" : "test.bak/" }
+        "psr-4": { "AuthressSdk\\" : "test/" }
     }
 }
