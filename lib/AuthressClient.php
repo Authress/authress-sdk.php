@@ -65,7 +65,7 @@ class AuthressClient
      *
      * @var string
      */
-    protected $userAgent = 'PHP AuthressSDK version: ${packageInfo.version}';
+    protected $userAgent = 'PHP AuthressSDK';
 
     /**
      * Debug switch (default set to false)
