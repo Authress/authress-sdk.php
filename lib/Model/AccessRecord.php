@@ -36,14 +36,15 @@ class AccessRecord implements ModelInterface, ArrayAccess
       */
     protected static $swaggerTypes = [
         'record_id' => 'string',
-'name' => 'string',
-'description' => '',
-'status' => 'string',
-'account' => '\AuthressSdk\Model\V1recordsAccount',
-'users' => '\AuthressSdk\Model\V1recordsUsers[]',
-'admins' => '\AuthressSdk\Model\V1recordsUsers[]',
-'statements' => '\AuthressSdk\Model\V1recordsStatements[]',
-'links' => '\AuthressSdk\Model\V1recordsLinks'    ];
+        'name' => 'string',
+        'description' => '',
+        'status' => 'string',
+        'account' => '\AuthressSdk\Model\V1recordsAccount',
+        'users' => '\AuthressSdk\Model\V1recordsUsers[]',
+        'groups' => '\AuthressSdk\Model\LinkedGroup[]',
+        'admins' => '\AuthressSdk\Model\V1recordsUsers[]',
+        'statements' => '\AuthressSdk\Model\V1recordsStatements[]',
+        'links' => '\AuthressSdk\Model\V1recordsLinks'    ];
 
     /**
       * Array of property to format mappings. Used for (de)serialization
@@ -52,14 +53,15 @@ class AccessRecord implements ModelInterface, ArrayAccess
       */
     protected static $swaggerFormats = [
         'record_id' => null,
-'name' => null,
-'description' => null,
-'status' => null,
-'account' => null,
-'users' => null,
-'admins' => null,
-'statements' => null,
-'links' => null    ];
+        'name' => null,
+        'description' => null,
+        'status' => null,
+        'account' => null,
+        'users' => null,
+        'groups' => null,
+        'admins' => null,
+        'statements' => null,
+        'links' => null    ];
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -89,14 +91,15 @@ class AccessRecord implements ModelInterface, ArrayAccess
      */
     protected static $attributeMap = [
         'record_id' => 'recordId',
-'name' => 'name',
-'description' => 'description',
-'status' => 'status',
-'account' => 'account',
-'users' => 'users',
-'admins' => 'admins',
-'statements' => 'statements',
-'links' => 'links'    ];
+        'name' => 'name',
+        'description' => 'description',
+        'status' => 'status',
+        'account' => 'account',
+        'users' => 'users',
+        'groups' => 'groups',
+        'admins' => 'admins',
+        'statements' => 'statements',
+        'links' => 'links'    ];
 
     /**
      * Array of attributes to setter functions (for deserialization of responses)
@@ -105,14 +108,15 @@ class AccessRecord implements ModelInterface, ArrayAccess
      */
     protected static $setters = [
         'record_id' => 'setRecordId',
-'name' => 'setName',
-'description' => 'setDescription',
-'status' => 'setStatus',
-'account' => 'setAccount',
-'users' => 'setUsers',
-'admins' => 'setAdmins',
-'statements' => 'setStatements',
-'links' => 'setLinks'    ];
+        'name' => 'setName',
+        'description' => 'setDescription',
+        'status' => 'setStatus',
+        'account' => 'setAccount',
+        'users' => 'setUsers',
+        'groups' => 'setGroups',
+        'admins' => 'setAdmins',
+        'statements' => 'setStatements',
+        'links' => 'setLinks'    ];
 
     /**
      * Array of attributes to getter functions (for serialization of requests)
@@ -121,14 +125,15 @@ class AccessRecord implements ModelInterface, ArrayAccess
      */
     protected static $getters = [
         'record_id' => 'getRecordId',
-'name' => 'getName',
-'description' => 'getDescription',
-'status' => 'getStatus',
-'account' => 'getAccount',
-'users' => 'getUsers',
-'admins' => 'getAdmins',
-'statements' => 'getStatements',
-'links' => 'getLinks'    ];
+        'name' => 'getName',
+        'description' => 'getDescription',
+        'status' => 'getStatus',
+        'account' => 'getAccount',
+        'users' => 'getUsers',
+        'groups' => 'getGroups',
+        'admins' => 'getAdmins',
+        'statements' => 'getStatements',
+        'links' => 'getLinks'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -163,7 +168,7 @@ class AccessRecord implements ModelInterface, ArrayAccess
 
 
     const STATUS_ACTIVE = 'ACTIVE';
-const STATUS_DELETED = 'DELETED';
+    const STATUS_DELETED = 'DELETED';
 
     /**
      * Gets allowable values of the enum
@@ -174,7 +179,7 @@ const STATUS_DELETED = 'DELETED';
     {
         return [
             self::STATUS_ACTIVE,
-self::STATUS_DELETED,        ];
+            self::STATUS_DELETED,        ];
     }
 
     /**
@@ -198,6 +203,7 @@ self::STATUS_DELETED,        ];
         $this->container['status'] = isset($data['status']) ? $data['status'] : null;
         $this->container['account'] = isset($data['account']) ? $data['account'] : null;
         $this->container['users'] = isset($data['users']) ? $data['users'] : null;
+        $this->container['groups'] = isset($data['groups']) ? $data['groups'] : null;
         $this->container['admins'] = isset($data['admins']) ? $data['admins'] : null;
         $this->container['statements'] = isset($data['statements']) ? $data['statements'] : null;
         $this->container['links'] = isset($data['links']) ? $data['links'] : null;
@@ -399,6 +405,30 @@ self::STATUS_DELETED,        ];
     public function setUsers($users)
     {
         $this->container['users'] = $users;
+
+        return $this;
+    }
+
+    /**
+     * Gets groups
+     *
+     * @return \AuthressSdk\Model\LinkedGroup[]
+     */
+    public function getGroups()
+    {
+        return $this->container['groups'];
+    }
+
+    /**
+     * Sets groups
+     *
+     * @param \AuthressSdk\Model\LinkedGroup[] $groups The list of groups this record applies to. Users in these groups will be receive access to the resources listed.
+     *
+     * @return $this
+     */
+    public function setGroups($groups)
+    {
+        $this->container['groups'] = $groups;
 
         return $this;
     }
