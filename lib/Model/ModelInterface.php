@@ -1,9 +1,7 @@
 <?php
 /**
  * ModelInterface
- *
- * PHP version 5
- *
+ 
  * @category Class
  * @package  AuthressSdk\Model
  * @author   Authress Developers

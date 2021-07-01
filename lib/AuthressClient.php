@@ -1,8 +1,7 @@
 <?php
 /**
  * AuthressClient
- * PHP version 5
- *
+
  * @category Class
  * @package  AuthressSdk
  * @author   Authress Developers
@@ -14,8 +13,7 @@ namespace AuthressSdk;
 
 /**
  * AuthressClient Class Doc Comment
- * PHP version 5
- *
+
  * @category Class
  * @package  AuthressSdk
  * @author   Authress Developers

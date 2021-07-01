@@ -1,9 +1,7 @@
 <?php
 /**
  * Role
- *
- * PHP version 5
- *
+ 
  * @category Class
  * @package  AuthressSdk
  * @author   Authress Developers
