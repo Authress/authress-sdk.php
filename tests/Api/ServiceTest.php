@@ -24,6 +24,9 @@ use AuthressSdk\ObjectSerializer;
  */
 class ServiceTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testUserPermissionTest()
     {
         // create an instance of the API class during service initialization
@@ -47,6 +50,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         // }
 
         // json_decode(file_get_contents('../../vendor/composer/installed.json'), true);
+        $this->markTestIncomplete('Implementation of this test is not complete.');
         print(implode(' ', get_defined_constants()));
     }
 }
