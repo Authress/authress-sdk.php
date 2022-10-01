@@ -206,6 +206,12 @@ class LoginClient
         if (!str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
             try {
                 $this->client->request('GET', '/api/session');
+                $cookieJar = $this->$client->getConfig('cookies');
+                $accessToken = $cookieJar->getCookieByName('authorization');
+                $idToken = $cookieJar->getCookieByName('user');
+                $decodedIdToken = $this->decodeToken($idToken);
+                setcookie('authorization', $accessToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
+                setcookie('user', $idToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
             } catch (Exception $e) {
                 /**/
             }
