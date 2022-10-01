@@ -1,15 +1,8 @@
 <?php
-/**
- * AuthressClient
-
- * @category Class
- * @package  AuthressSdk
- * @author   Authress Developers
- * @link     https://authress.io/app/#/api
- */
-
-
 namespace AuthressSdk;
+
+require('./Login/LoginClient.php');
+use AuthressSdk\Login;
 
 /**
  * AuthressClient Class Doc Comment
@@ -22,6 +15,20 @@ namespace AuthressSdk;
 class AuthressClient
 {
     private static $defaultAuthressClient;
+    
+    /**
+      * The loginClient for Authress.
+      *
+      * @var \Login\LoginClient
+      */
+    public $login;
+
+    /**
+      * The Authress applicationId for this app - see https://authress.io/app/#/manage?focus=applications
+      *
+      * @var string
+      */
+    public $applicationId;
 
     /**
      * Associate array to store API key
@@ -80,20 +87,14 @@ class AuthressClient
     protected $debugFile = 'php://output';
 
     /**
-     * Debug file location (log to STDOUT by default)
-     *
-     * @var string
-     */
-    protected $tempFolderPath;
-
-    /**
      * Constructor
-     * @param string $baseUrl - The host domain for authress (matches https://DOMAIN.api-REGION.authress.io)
+     * @param string $baseUrl - The host domain for authress (matches your Authress account custom domain https://authress.io/app/#/setup?focus=domain)
+     * @param string $applicationId - The host domain for authress (matches your Authress account custom domain https://authress.io/app/#/setup?focus=domain)
      */
-    public function __construct($baseUrl)
+    public function __construct(string $baseUrl, string $applicationId = null)
     {
         $this->host = $baseUrl;
-        $this->tempFolderPath = sys_get_temp_dir();
+        $this->login = new LoginClient($baseUrl, $applicationId);
     }
 
     /**
@@ -173,16 +174,6 @@ class AuthressClient
     public function getDebugFile()
     {
         return $this->debugFile;
-    }
-
-    /**
-     * Gets the temp folder path
-     *
-     * @return string Temp folder path
-     */
-    public function getTempFolderPath()
-    {
-        return $this->tempFolderPath;
     }
 
     /**

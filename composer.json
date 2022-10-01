@@ -26,6 +26,7 @@
         "ext-curl": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
+        "lcobucci/jwt": "^4.1",
         "guzzlehttp/guzzle": ">=6.2"
     },
     "require-dev": {

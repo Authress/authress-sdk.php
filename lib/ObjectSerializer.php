@@ -255,9 +255,10 @@ class ObjectSerializer
             // determine file name
             if (array_key_exists('Content-Disposition', $httpHeaders) &&
                 preg_match('/inline; filename=[\'"]?([^\'"\s]+)[\'"]?$/i', $httpHeaders['Content-Disposition'], $match)) {
-                $filename = AuthressClient::getDefaultAuthressClient()->getTempFolderPath() . DIRECTORY_SEPARATOR . self::sanitizeFilename($match[1]);
+                $tempFolderPath = sys_get_temp_dir();
+                $filename = $tempFolderPath . DIRECTORY_SEPARATOR . self::sanitizeFilename($match[1]);
             } else {
-                $filename = tempnam(AuthressClient::getDefaultAuthressClient()->getTempFolderPath(), '');
+                $filename = tempnam($tempFolderPath, '');
             }
 
             $file = fopen($filename, 'w');
