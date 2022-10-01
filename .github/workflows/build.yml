@@ -24,7 +24,7 @@ jobs:
         coverage: xdebug
 
     - name: Install Composer dependencies
-      run: composer install --no-progress --prefer-dist --optimize-autoloader
+      run: ./composer.phar install --no-progress --prefer-dist --optimize-autoloader
     - name: Run Tests
       run: vendor/bin/phpunit --coverage-text
     - name: Deploy package to package repository

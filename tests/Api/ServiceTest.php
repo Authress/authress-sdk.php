@@ -48,6 +48,5 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         // json_decode(file_get_contents('../../vendor/composer/installed.json'), true);
         print(implode(' ', get_defined_constants()));
-
     }
 }

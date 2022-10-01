@@ -56,12 +56,13 @@ class LoginClient
      * @param string   $authressLoginHostUrl
      */
     public function __construct(string $authressLoginHostUrl, string $applicationId) {
+        $this->authressLoginHostUrl = $authressLoginHostUrl;
+        $this->applicationId = $applicationId;
+
         $this->client = new Client([
             'base_uri' => $this->authressLoginHostUrl,
             'cookies' => true
         ]);
-        $this->authressLoginHostUrl = $authressLoginHostUrl;
-        $this->applicationId = $applicationId;
     }
 
     private function getCurrentUrl()
@@ -74,7 +75,16 @@ class LoginClient
         $port     = ( ( ! $ssl && $port == '80' ) || ( $ssl && $port == '443' ) ) ? '' : ':' . $port;
         $host     = isset( $s['HTTP_HOST'] ) ? $s['HTTP_HOST'] : null;
         $host     = isset( $host ) ? $host : $s['SERVER_NAME'] . $port;
-        return $protocol . '://' . $host . $_SERVER['REQUEST_URI'];
+
+        // Remove specific parameter from query string
+        $filteredURL = $_SERVER['REQUEST_URI'];
+        $filteredURL = preg_replace('~(\?|&)' . 'iss' . '=[^&]*~', '$1', $filteredURL);
+        $filteredURL = preg_replace('~(\?|&)' . 'nonce' . '=[^&]*~', '$1', $filteredURL);
+        $filteredURL = preg_replace('~(\?|&)' . 'access_token' . '=[^&]*~', '$1', $filteredURL);
+        $filteredURL = preg_replace('~(\?|&)' . 'id_token' . '=[^&]*~', '$1', $filteredURL);
+        $filteredURL = preg_replace('~(\?|&)' . 'expires_in' . '=[^&]*~', '$1', $filteredURL);
+
+        return $protocol . '://' . $host . $filteredURL;
     }
 
 
@@ -86,7 +96,7 @@ class LoginClient
      * @throws InvalidArgumentException
      * @return boolean
      */
-    public function authenticate(AuthenticationParameters $authenticationParameters)
+    public function authenticate(AuthenticationParameters $authenticationParameters): bool
     {
         if (!$authenticationParameters->force) {
             $userSessionExists = $this->userSessionExists();
@@ -99,23 +109,24 @@ class LoginClient
             throw new InvalidArgumentException("connectionId or tenantLookupIdentifier must be specified");
         }
 
-        $codeVerifier = base64url.encode((window.crypto || window.msCrypto).getRandomValues(new Uint32Array(16)).toString());
-        // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
-        $hashBuffer = await (window.crypto || window.msCrypto).subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
-        $codeChallenge = base64url.encode(hashBuffer);
+        $codeVerifier = Pkce::generateCodeVerifier();
+        $codeChallenge = Pkce::generateCodeChallenge($codeVerifier);
 
         $redirectUrl = isset($authenticationParameters->redirectUrl) ? $authenticationParameters->redirectUrl : $this->getCurrentUrl();
 
         try {
-            $response = $this->$client->request('POST', '/authentication', [
+            $response = $this->client->request('POST', '/api/authentication', [
+                'headers' => [
+                    'User-Agent' => 'PHP AuthressSDK',
+                    'Origin' => $this->getCurrentUrl()
+                ],
                 'json' => [
                     'redirectUrl' => $redirectUrl,
                     'codeChallengeMethod' => 'S256',
                     'codeChallenge' => $codeChallenge,
                     'connectionId' => $authenticationParameters->connectionId,
                     'tenantLookupIdentifier' => $authenticationParameters->tenantLookupIdentifier,
-                    'connectionProperties' => $authenticationParameters->connectionProperties,
-                    'applicationId' => $this->$applicationId
+                    'applicationId' => $this->applicationId
                 ]
             ]);
             $statusCode = $response->getStatusCode();
@@ -133,7 +144,7 @@ class LoginClient
                 );
             }
 
-            $json = $response->json();
+            $json = json_decode($response->getBody());
 
             $_SESSION["authenticationRequest"] = [
                 'nonce' => $json->authenticationRequestId,
@@ -142,7 +153,6 @@ class LoginClient
                 'tenantLookupIdentifier' => $authenticationParameters->tenantLookupIdentifier,
                 'redirectUrl' => $redirectUrl
             ];
-            
             header("Location: " . $json->authenticationUrl);
             exit();
         } catch (RequestException $e) {
@@ -161,7 +171,7 @@ class LoginClient
      * Call this function on every route change. It will check if the user just logged in or is still logged in.
      * @return boolean
      */
-    public function userSessionExists()
+    public function userSessionExists(): bool
     {
         $authRequest = isset($_SESSION["authenticationRequest"]) ? $_SESSION["authenticationRequest"] : null;
         if ($authRequest !== null) {
@@ -180,8 +190,8 @@ class LoginClient
             if ($accessToken !== null) {
                 $idToken = isset($_GET['id_token']) ? $_GET['id_token'] : null;
                 $decodedIdToken = $this->decodeToken($idToken);
-                setcookie('authorization', $accessToken, $decodedIdToken->get('exp'), '/');
-                setcookie('user', $idToken, $decodedIdToken->get('exp'), '/');
+                setcookie('authorization', $accessToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
+                setcookie('user', $idToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
                 return true;
             }
             // Otherwise check cookies and then force the user to log in
@@ -195,16 +205,7 @@ class LoginClient
 
         if (!str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
             try {
-                $response = $this->$client->request('GET', '/session');
-                $sessionResult = $response->json();
-
-                // In the case that the session contains non cookie based data, store it back to the cookie for this domain
-                if ($sessionResult->access_token) {
-                    $idToken = $this->decodeToken($sessionResult->id_token);
-                    setcookie('authorization', $sessionResult->access_token, $decodedIdToken->get('exp'), '/');
-                    setcookie('user', $sessionResult->id_token, $decodedIdToken->get('exp'), '/');
-                }
-                // await this.httpClient.patch('/session', true, {});
+                $this->client->request('GET', '/api/session');
             } catch (Exception $e) {
                 /**/
             }
@@ -224,7 +225,7 @@ class LoginClient
      * Returns the user's bearer token if it exists.
      * @return string the authorization token ready to be used if it exists.
      */
-    public function getToken()
+    public function getToken(): ?string
     {
         return isset($_COOKIE['authorization']) ? $_COOKIE['authorization'] : null;
     }
@@ -234,13 +235,13 @@ class LoginClient
     * @return object The user data object.
     */
     public function getUserIdentity() {
-        return isset($_COOKIE['user']) ? $this->decodeToken($_COOKIE['user']) : null;
+        return isset($_COOKIE['user']) ? json_decode(base64_decode(strtr($this->decodeToken($_COOKIE['user'])->toString(), '-_', '+/'))) : null;
     }
 
     private function decodeToken($token) {
         $config = Configuration::forUnsecuredSigner();
 		$token = $config->parser()->parse($token);
-        return $token->payload();
+        return $token->claims();
     }
 
 	private function verifyToken($token) {
@@ -250,10 +251,7 @@ class LoginClient
 		$token = $config->parser()->parse($token);
 		$keyId = $token->headers()->get('kid');
 
-		$client = new GuzzleHttp\Client([
-			'base_uri' => $expectedIss,
-			'decode_content' => false
-		]);
+		$client = new GuzzleHttp\Client([ 'base_uri' => $expectedIss, 'decode_content' => false ]);
 
 		$response = $client->request('GET', '/.well-known/openid-configuration/jwks');
 		$keys = json_decode($response->getBody()->getContents())->keys;
@@ -288,5 +286,4 @@ class LoginClient
 			throw new Exception("Unexpected exception verifying user token");
 		}
 	}
-    }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * ClientsApi
+ * ServiceClientsApi
 
  * @category Class
  * @package  AuthressSdk
@@ -23,14 +23,14 @@ use AuthressSdk\HeaderSelector;
 use AuthressSdk\ObjectSerializer;
 
 /**
- * ClientsApi Class Doc Comment
+ * ServiceClientsApi Class Doc Comment
  *
  * @category Class
  * @package  AuthressSdk
  * @author   Authress Developers
  * @link     https://authress.io/app/#/api
  */
-class ClientsApi
+class ServiceClientsApi
 {
     /**
      * @var ClientInterface

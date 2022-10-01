@@ -49,17 +49,18 @@ Log the user in with the selected identity provider connection. Use when the use
 <?php
 require('vendor/autoload.php');
 use AuthressSdk\AuthressClient;
+use AuthressSdk\Login\AuthenticationParameters;
 
 // create an instance of the API class during service initialization: https://authress.io/app/#/setup?focus=domain
 $authressCustomDomain = "https://login.application.com";
-$authressClient = new AuthressClient($authressCustomDomain);
+// The application that the user is logging in with https://authress.io/app/#/setup?focus=applications
+$applicationId = 'app_APPLICATION_ID';
+$authressClient = new AuthressClient($authressCustomDomain, $applicationId);
 
-$options = [
-    // The application that the user is logging in with https://authress.io/app/#/setup?focus=applications
-    'applicationId' => "APPLICATION_ID",
+$options = new AuthenticationParameters([
     // When user clicks "Log in with Google (or Github)" pass the relevant connectionId here:  https://authress.io/app/#/setup?focus=connections
     'connectionId' => "CONNECTION_ID"
-];
+]);
 
 // Returns true if the user is successfully logged in, and otherwise redirects the user to appropriate login page
 session_start();
@@ -72,19 +73,13 @@ Check if the user is currently logged in. If the user isn't logged in yet, call 
 ```php
 <?php
 require('vendor/autoload.php');
-
 use AuthressSdk\AuthressClient;
 
 // create an instance of the API class during service initialization: https://authress.io/app/#/setup?focus=domain
 $authressCustomDomain = "https://login.application.com";
 // The application that the user is logging in with https://authress.io/app/#/setup?focus=applications
-$applicationId = "APPLICATION_ID";
+$applicationId = "app_APPLICATION_ID";
 $authressClient = new AuthressClient($authressCustomDomain, $applicationId);
-
-$options = [
-    // When user clicks "Log in with Google (or Github)" pass the relevant connectionId here:  https://authress.io/app/#/setup?focus=connections
-    'connectionId' => "CONNECTION_ID"
-];
 
 // Returns true if the user is successfully logged in, and otherwise redirects the user to appropriate login page.
 session_start();

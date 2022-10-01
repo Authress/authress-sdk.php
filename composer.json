@@ -39,6 +39,8 @@
         "psr-4": { "AuthressSdk\\" : "lib/" }
     },
     "autoload-dev": {
-        "psr-4": { "AuthressSdk\\" : "test/" }
+        "psr-4": {
+            "AuthressSdk\\" : "lib/"
+        }
     }
 }

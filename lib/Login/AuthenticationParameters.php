@@ -30,13 +30,13 @@ class AuthenticationParameters
       *
       * @var string
       */
-    public $connectionId;
+    public ?string $connectionId;
     
     /**
       * Instead of connectionId, specify the tenant lookup identifier to log the user with the mapped tenant - see https://authress.io/app/#/manage?focus=tenants*
       * @var string
       */
-    public $tenantLookupIdentifier;
+    public ?string $tenantLookupIdentifier;
       
     /**
       * Store the credentials response in the specified location. Options are either 'cookie' or 'query'. (Default: **cookie**)
@@ -57,7 +57,7 @@ class AuthenticationParameters
       *
       * @var string
       */
-    public $redirectUrl;
+    public ?string $redirectUrl;
 
     /**
       * Connection specific properties to pass to the identity provider. Can be used to override default scopes for example.
@@ -71,7 +71,7 @@ class AuthenticationParameters
       *
       * @var boolean
       */
-    public $force = false;
+    public bool $force = false;
 
     /**
      * Constructor
@@ -80,9 +80,9 @@ class AuthenticationParameters
      */
     public function __construct(array $data = null)
     {
-        $this->$connectionId = isset($data['connectionId']) ? $data['connectionId'] : null;
-        $this->$tenantLookupIdentifier = isset($data['tenantLookupIdentifier']) ? $data['tenantLookupIdentifier'] : null;
-        $this->$redirectUrl = isset($data['redirectUrl']) ? $data['redirectUrl'] : null;
-        $this->$force = isset($data['force']) ? $data['force'] : false;
+      $this->connectionId = isset($data['connectionId']) ? $data['connectionId'] : null;
+      $this->tenantLookupIdentifier = isset($data['tenantLookupIdentifier']) ? $data['tenantLookupIdentifier'] : null;
+      $this->redirectUrl = isset($data['redirectUrl']) ? $data['redirectUrl'] : null;
+      $this->force = isset($data['force']) ? $data['force'] : false;
     }
 }

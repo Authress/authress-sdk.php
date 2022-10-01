@@ -1,8 +1,7 @@
 <?php
 namespace AuthressSdk;
 
-require('./Login/LoginClient.php');
-use AuthressSdk\Login;
+use \AuthressSdk\Login\LoginClient;
 
 /**
  * AuthressClient Class Doc Comment
@@ -19,7 +18,7 @@ class AuthressClient
     /**
       * The loginClient for Authress.
       *
-      * @var \Login\LoginClient
+      * @var \AuthressSdk\Login\LoginClient
       */
     public $login;
 
@@ -89,12 +88,12 @@ class AuthressClient
     /**
      * Constructor
      * @param string $baseUrl - The host domain for authress (matches your Authress account custom domain https://authress.io/app/#/setup?focus=domain)
-     * @param string $applicationId - The host domain for authress (matches your Authress account custom domain https://authress.io/app/#/setup?focus=domain)
+     * @param ?string $applicationId - The host domain for authress (matches your Authress account custom domain https://authress.io/app/#/setup?focus=domain)
      */
-    public function __construct(string $baseUrl, string $applicationId = null)
+    public function __construct(string $baseUrl, ?string $applicationId = null)
     {
         $this->host = $baseUrl;
-        $this->login = new LoginClient($baseUrl, $applicationId);
+        $this->login = isset($applicationId) ? new LoginClient($baseUrl, $applicationId) : null;
     }
 
     /**
