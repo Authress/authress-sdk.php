@@ -241,7 +241,11 @@ class LoginClient
     * @return object The user data object.
     */
     public function getUserIdentity() {
-        return isset($_COOKIE['user']) ? json_decode(base64_decode(strtr($this->decodeToken($_COOKIE['user'])->toString(), '-_', '+/'))) : null;
+        $idToken = isset($_COOKIE['user']) ? $_COOKIE['user'] : (isset($_GET) && isset($_GET['id_token']) ? $_GET['id_token'] : null);
+        if ($idToken === null) {
+            return null;
+        }
+        return json_decode(base64_decode(strtr($this->decodeToken($idToken)->toString(), '-_', '+/')));
     }
 
     private function decodeToken($token) {
