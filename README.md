@@ -59,7 +59,9 @@ $authressClient = new AuthressClient($authressCustomDomain, $applicationId);
 
 $options = new AuthenticationParameters([
     // When user clicks "Log in with Google (or Github)" pass the relevant connectionId here:  https://authress.io/app/#/setup?focus=connections
-    'connectionId' => "CONNECTION_ID"
+    'connectionId' => "CONNECTION_ID",
+	'redirectUrl' => "URL_AFTER_SUCCESS_LOGIN (Optional)"
+]);
 ]);
 
 // Returns true if the user is successfully logged in, and otherwise redirects the user to appropriate login page
