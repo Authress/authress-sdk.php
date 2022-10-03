@@ -185,7 +185,7 @@ class LoginClient
             return false;
         }
 
-        if (str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
+        if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
             $accessToken = isset($_GET['access_token']) ? $_GET['access_token'] : null;
             if ($accessToken !== null) {
                 $idToken = isset($_GET['id_token']) ? $_GET['id_token'] : null;
@@ -203,7 +203,7 @@ class LoginClient
             return true;
         }
 
-        if (!str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
+        if (strpos($_SERVER['HTTP_HOST'], 'localhost') === false) {
             try {
                 $this->client->request('GET', '/api/session');
                 $cookieJar = $this->$client->getConfig('cookies');
@@ -212,9 +212,7 @@ class LoginClient
                 $decodedIdToken = $this->decodeToken($idToken);
                 setcookie('authorization', $accessToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
                 setcookie('user', $idToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
-            } catch (Exception $e) {
-                /**/
-            }
+            } catch (\Exception $e) { /**/ }
 
             $userData = $this->getUserIdentity();
             // User is now logged in
@@ -292,7 +290,7 @@ class LoginClient
 			return $userObject;
 		} catch (RequiredConstraintsViolated $e) {
 			throw new Exception("Unauthorized");
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			throw new Exception("Unexpected exception verifying user token");
 		}
 	}
