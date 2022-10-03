@@ -95,3 +95,31 @@ $userToken = $authressClient->login->getToken();
 
 ?>
 ```
+
+Verify an incoming token into your service from a client:
+```php
+<?php
+require('vendor/autoload.php');
+use AuthressSdk\AuthressClient;
+
+// create an instance of the API class during service initialization: https://authress.io/app/#/setup?focus=domain
+$authressCustomDomain = "https://login.application.com";
+// The application that the user is logging in with https://authress.io/app/#/setup?focus=applications
+$applicationId = "app_APPLICATION_ID";
+$authressClient = new AuthressClient($authressCustomDomain, $applicationId);
+
+// Returns true if the user is successfully logged in, and otherwise redirects the user to appropriate login page.
+session_start();
+$accessTokenClaims = $authressClient->login->verifyToken($token);
+echo json_encode($accessTokenClaims);
+
+// Or set it as the `Authorization Header` to call another service:
+
+$client->request('POST', 'https://api.application.com', [
+    headers => [
+        'Authorization' => 'Bearer ' . $token
+    ]
+]);
+
+?>
+```

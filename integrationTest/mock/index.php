@@ -31,6 +31,9 @@ session_start();
 $result = $authressClient->login->authenticate($options);
 echo "Login Result: " . $result . "<br>";
 echo "Issuer: " . $authressClient->login->getUserIdentity()->iss . "<br>";
-echo "UserId: " . $authressClient->login->getUserIdentity()->sub;
+echo "UserId: " . $authressClient->login->getUserIdentity()->sub . "<br>";
+
+$verifiedUserObject = $authressClient->login->verifyToken();
+echo "UserObject: " . json_encode($verifiedUserObject) . "<br>";
 
 ?>

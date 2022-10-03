@@ -52,6 +52,8 @@ class LoginClient
      */
     private string $applicationId;
 
+    private static array $jwkCache = [];
+
     /**
      * @param string   $authressLoginHostUrl
      */
@@ -231,7 +233,8 @@ class LoginClient
      */
     public function getToken(): ?string
     {
-        return isset($_COOKIE['authorization']) ? $_COOKIE['authorization'] : null;
+        $accessToken = isset($_COOKIE['authorization']) ? $_COOKIE['authorization'] : (isset($_GET) && isset($_GET['access_token']) ? $_GET['access_token'] : null);
+        return $accessToken;
     }
 
     /**
@@ -246,41 +249,25 @@ class LoginClient
         return json_decode(base64_decode(strtr($this->decodeToken($idToken)->toString(), '-_', '+/')));
     }
 
-    private function decodeToken($token) {
+    private function decodeToken(string $token) {
         $config = Configuration::forUnsecuredSigner();
 		$token = $config->parser()->parse($token);
         return $token->claims();
     }
 
-	private function verifyToken($token) {
+	public function verifyToken(?string $overrideToken = null) {
+        $token = $overrideToken ?? $this->getToken();
 		$expectedIss = $this->authressLoginHostUrl;
 
 		$config = Configuration::forUnsecuredSigner();
 		$token = $config->parser()->parse($token);
 		$keyId = $token->headers()->get('kid');
 
-		$client = new GuzzleHttp\Client([ 'base_uri' => $expectedIss, 'decode_content' => false ]);
-
-		$response = $client->request('GET', '/.well-known/openid-configuration/jwks');
-		$keys = json_decode($response->getBody()->getContents())->keys;
-
-		$jwk = null;
-		$signer = null;
-		foreach ( $keys as $element ) {
-			if ( $keyId !== $element->kid ) {
-				continue;
-			}
-
-			$signer = new Signer\Eddsa();
-            $jwk = InMemory::plainText(base64_decode(strtr($element->x, '-_', '+/')), true);
-		}
-
-		if (empty($jwk) || $jwk === null) {
-			throw new Exception("Unauthorized");
-		}
+		$jwk = $this->getJwk($keyId);
 
 		$config->setValidationConstraints(new Constraint\LooseValidAt(SystemClock::fromUTC()));
 		$config->setValidationConstraints(new Constraint\IssuedBy($expectedIss));
+        $signer = new Signer\Eddsa();
 		$config->setValidationConstraints(new Constraint\SignedWith($signer, $jwk));
 		$constraints = $config->validationConstraints();
 
@@ -294,4 +281,31 @@ class LoginClient
 			throw new Exception("Unexpected exception verifying user token");
 		}
 	}
+
+    private function getJwk($kid) {
+        if (isset(self::$jwkCache[$kid])) {
+            return self::$jwkCache[$kid];
+        }
+
+        $expectedIss = $this->authressLoginHostUrl;
+        $client = new Client([ 'base_uri' => $expectedIss, 'decode_content' => false ]);
+
+		$response = $client->request('GET', '/.well-known/openid-configuration/jwks');
+		$keys = json_decode($response->getBody()->getContents())->keys;
+
+		$jwk = null;
+		foreach ( $keys as $element ) {
+			if ( $kid !== $element->kid ) {
+				continue;
+			}
+
+            $jwk = InMemory::plainText(base64_decode(strtr($element->x, '-_', '+/')), true);
+		}
+
+		if (empty($jwk) || $jwk === null) {
+			throw new Exception("Unauthorized");
+		}
+        self::$jwkCache[$kid] = $jwk;
+        return $jwk;
+    }
 }
