@@ -287,6 +287,10 @@ class LoginClient
             return self::$jwkCache[$kid];
         }
 
+        if (isset($_SESSION['jwk'])) {
+            return $_SESSION['jwk'];
+        }
+
         $expectedIss = $this->authressLoginHostUrl;
         $client = new Client([ 'base_uri' => $expectedIss, 'decode_content' => false ]);
 
@@ -306,6 +310,7 @@ class LoginClient
 			throw new Exception("Unauthorized");
 		}
         self::$jwkCache[$kid] = $jwk;
+        return $_SESSION['jwk'] = $jwk;
         return $jwk;
     }
 }
