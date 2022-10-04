@@ -276,9 +276,9 @@ class LoginClient
 			$userObject = (object) $token->claims()->all();
 			return $userObject;
 		} catch (RequiredConstraintsViolated $e) {
-			throw new Exception("Unauthorized");
+			throw new \Exception("Unauthorized");
 		} catch (\Exception $e) {
-			throw new Exception("Unexpected exception verifying user token");
+			throw new \Exception("Unexpected exception verifying user token");
 		}
 	}
 
@@ -307,7 +307,7 @@ class LoginClient
 		}
 
 		if (empty($jwk) || $jwk === null) {
-			throw new Exception("Unauthorized");
+			throw new \Exception("Unauthorized");
 		}
         self::$jwkCache[$kid] = $jwk;
         return $_SESSION['jwk'] = $jwk;
