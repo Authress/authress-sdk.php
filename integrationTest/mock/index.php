@@ -27,10 +27,15 @@ $options = new AuthenticationParameters([
 // Returns true if the user is successfully logged in, and otherwise redirects the user to appropriate login page
 session_start();
 
+$sessionExists = $authressClient->login->userSessionExists($options);
+echo "Session Exists: " . $sessionExists . "<br>";
 
 $result = $authressClient->login->authenticate($options);
 echo "Login Result: " . $result . "<br>";
 echo "Issuer: " . $authressClient->login->getUserIdentity()->iss . "<br>";
-echo "UserId: " . $authressClient->login->getUserIdentity()->sub;
+echo "UserId: " . $authressClient->login->getUserIdentity()->sub . "<br>";
+
+$verifiedUserObject = $authressClient->login->verifyToken();
+echo "UserObject: " . json_encode($verifiedUserObject) . "<br>";
 
 ?>
