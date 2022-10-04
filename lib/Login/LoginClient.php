@@ -212,9 +212,21 @@ class LoginClient
                 $accessToken = $cookieJar->getCookieByName('authorization');
                 $idToken = $cookieJar->getCookieByName('user');
                 $decodedIdToken = $this->decodeToken($idToken);
-                setcookie('authorization', $accessToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
-                setcookie('user', $idToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
-            } catch (\Exception $e) { /**/ }
+                setcookie('authorization', $accessToken, [
+                    'expires' => $decodedIdToken->get('exp')->getTimestamp(),
+                    'path' => '/',
+                    'secure' => true,
+                    'samesite' => 'Strict'
+                ]);
+                setcookie('user', $idToken, [
+                    'expires' => $decodedIdToken->get('exp')->getTimestamp(),
+                    'path' => '/',
+                    'secure' => true,
+                    'samesite' => 'Strict'
+                ]);
+            } catch (\Exception $e) {
+                /* */
+            }
 
             $userData = $this->getUserIdentity();
             // User is now logged in
