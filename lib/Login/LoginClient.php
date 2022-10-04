@@ -235,6 +235,7 @@ class LoginClient
                     'secure' => true,
                     'samesite' => 'Strict'
                 ]);
+                return isset($idToken) && $idToken !== null && $idToken !== '';
             } catch (\Exception $e) {
                 if ($e->getCode() !== 403 && $e->getCode() !== 404) {
                     throw $e;
