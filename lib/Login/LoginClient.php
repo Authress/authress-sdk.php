@@ -207,20 +207,31 @@ class LoginClient
 
         if (strpos($_SERVER['HTTP_HOST'], 'localhost') === false) {
             try {
-                $this->client->request('GET', '/api/session');
+                $this->client->request('GET', '/api/session', [
+                    'headers' => [
+                        'Cookie' => 'authress-session=' . (isset($_COOKIE["authentication-session"]) && $_COOKIE["authentication-session"] !== null ? $_COOKIE["authentication-session"] : '')
+                    ]
+                ]);
                 $cookieJar = $this->client->getConfig('cookies');
+                $authressSession = $cookieJar->getCookieByName('authress-session') !== null ? $cookieJar->getCookieByName('authress-session')->getValue() : null;
                 $accessToken = $cookieJar->getCookieByName('authorization')->getValue();
                 $idToken = $cookieJar->getCookieByName('user')->getValue();
-                $decodedIdToken = $this->decodeToken($idToken);
                 setcookie('authorization', $accessToken, [
-                    'expires' => $decodedIdToken->get('exp')->getTimestamp(),
+                    'expires' => $cookieJar->getCookieByName('authorization')->getExpires(),
                     'path' => '/',
                     'secure' => true,
                     'samesite' => 'Strict'
                 ]);
                 setcookie('user', $idToken, [
-                    'expires' => $decodedIdToken->get('exp')->getTimestamp(),
+                    'expires' => $cookieJar->getCookieByName('user')->getExpires(),
                     'path' => '/',
+                    'secure' => true,
+                    'samesite' => 'Strict'
+                ]);
+                setcookie('authentication-session', $authressSession, [
+                    'expires' => $cookieJar->getCookieByName('authress-session') !== null ? $cookieJar->getCookieByName('authress-session')->getExpires() : 0,
+                    'path' => '/',
+                    'httponly' => true,
                     'secure' => true,
                     'samesite' => 'Strict'
                 ]);
