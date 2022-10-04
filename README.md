@@ -8,6 +8,20 @@ Install authress-sdk for usage of the API:
 
 ## SDK usage
 
+There's a full working example in this repository for how to flow can look like: [working example](./integrationTest/mock/index.php);
+
+The full flow is usually:
+* Check if user is logged in using `userSessionExists`
+* If user is not logged in send them to your login page
+  * On your login page ask the user which connection provider they want to use
+  * Call `authenticate` with that `connectionId`
+  * User will be redirected to the provider
+* User will be returned to your redirectUrl
+  * The redirectUrl page should include a code snippet from the [working example](./integrationTest/mock/index.php) and in the URL of your page will contain the `iss`, `code`, and `nonce` parameters (for validation, you don't need to worry how to handle them, but they need to be there this signals that the login worked correctly.)
+* Call the `userSessionExists` method
+  * This should work and return `true` at this moment
+
+  You can also validate this worked by looking at the cookies for the app, which should contain `authorization` and `user` cookies. Please don't use these cookies directly as their format might change.
 
 ### Authorization
 
