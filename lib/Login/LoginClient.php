@@ -208,9 +208,9 @@ class LoginClient
         if (strpos($_SERVER['HTTP_HOST'], 'localhost') === false) {
             try {
                 $this->client->request('GET', '/api/session');
-                $cookieJar = $this->$client->getConfig('cookies');
-                $accessToken = $cookieJar->getCookieByName('authorization');
-                $idToken = $cookieJar->getCookieByName('user');
+                $cookieJar = $this->client->getConfig('cookies');
+                $accessToken = $cookieJar->getCookieByName('authorization')->getValue();
+                $idToken = $cookieJar->getCookieByName('user')->getValue();
                 $decodedIdToken = $this->decodeToken($idToken);
                 setcookie('authorization', $accessToken, [
                     'expires' => $decodedIdToken->get('exp')->getTimestamp(),
@@ -225,7 +225,9 @@ class LoginClient
                     'samesite' => 'Strict'
                 ]);
             } catch (\Exception $e) {
-                /* */
+                if ($e->getCode() !== 403 && $e->getCode() !== 404) {
+                    throw $e;
+                }
             }
 
             $userData = $this->getUserIdentity();
