@@ -82,6 +82,8 @@ class LoginClient
         $filteredURL = $_SERVER['REQUEST_URI'];
         $filteredURL = preg_replace('~(\?|&)' . 'iss' . '=[^&]*~', '$1', $filteredURL);
         $filteredURL = preg_replace('~(\?|&)' . 'nonce' . '=[^&]*~', '$1', $filteredURL);
+        $filteredURL = preg_replace('~(\?|&)' . 'code' . '=[^&]*~', '$1', $filteredURL);
+        $filteredURL = preg_replace('~(\?|&)' . 'state' . '=[^&]*~', '$1', $filteredURL);
         $filteredURL = preg_replace('~(\?|&)' . 'access_token' . '=[^&]*~', '$1', $filteredURL);
         $filteredURL = preg_replace('~(\?|&)' . 'id_token' . '=[^&]*~', '$1', $filteredURL);
         $filteredURL = preg_replace('~(\?|&)' . 'expires_in' . '=[^&]*~', '$1', $filteredURL);
@@ -120,7 +122,7 @@ class LoginClient
             $response = $this->client->request('POST', '/api/authentication', [
                 'headers' => [
                     'User-Agent' => 'PHP AuthressSDK',
-                    'Origin' => $this->getCurrentUrl()
+                    'Origin' => $this->authressLoginHostUrl
                 ],
                 'json' => [
                     'redirectUrl' => $redirectUrl,
@@ -128,7 +130,10 @@ class LoginClient
                     'codeChallenge' => $codeChallenge,
                     'connectionId' => $authenticationParameters->connectionId,
                     'tenantLookupIdentifier' => $authenticationParameters->tenantLookupIdentifier,
-                    'applicationId' => $this->applicationId
+                    'applicationId' => $this->applicationId,
+                    'responseLocation' => 'query',
+                    'flowType' => 'code'
+
                 ]
             ]);
             $statusCode = $response->getStatusCode();
@@ -148,7 +153,7 @@ class LoginClient
 
             $json = json_decode($response->getBody());
 
-            $_SESSION["authenticationRequest"] = [
+            $_SESSION["authenticationRequest"] = (object) [
                 'nonce' => $json->authenticationRequestId,
                 'codeVerifier' => $codeVerifier,
                 'lastConnectionId' => $authenticationParameters->connectionId,
@@ -176,9 +181,6 @@ class LoginClient
     public function userSessionExists(): bool
     {
         $authRequest = isset($_SESSION["authenticationRequest"]) ? $_SESSION["authenticationRequest"] : null;
-        if ($authRequest !== null) {
-            unset($_SESSION["authenticationRequest"]);
-        }
 
         // Your app was redirected to from the Authress Hosted Login page. The next step is to show the user the login widget and enable them to login.
         $state = isset($_GET['state']) ? $_GET['state'] : null;
@@ -187,67 +189,79 @@ class LoginClient
             return false;
         }
 
-        if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
-            $accessToken = isset($_GET['access_token']) ? $_GET['access_token'] : null;
-            if ($accessToken !== null) {
-                $idToken = isset($_GET['id_token']) ? $_GET['id_token'] : null;
-                $decodedIdToken = $this->decodeToken($idToken);
-                setcookie('authorization', $accessToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
-                setcookie('user', $idToken, $decodedIdToken->get('exp')->getTimestamp(), '/');
-                return true;
-            }
-            // Otherwise check cookies and then force the user to log in
-        }
-
         $userData = $this->getUserIdentity();
         // User is already logged in
-        if ($userData !== null) {
+        if (isset($userData)) {
             return true;
         }
 
-        if (strpos($_SERVER['HTTP_HOST'], 'localhost') === false) {
+        $authCode = isset($_GET['code']) ? $_GET['code'] : null;
+        $nonce = isset($authRequest) && isset($authRequest->nonce) ? $authRequest->nonce : null;
+        if (isset($authCode) && isset($nonce)) {
             try {
-                $this->client->request('GET', '/api/session', [
+                $response = $this->client->request('POST', '/api/authentication/' . $nonce . '/tokens', [
                     'headers' => [
-                        'Cookie' => 'authress-session=' . (isset($_COOKIE["authentication-session"]) && $_COOKIE["authentication-session"] !== null ? $_COOKIE["authentication-session"] : '')
+                        'User-Agent' => 'PHP AuthressSDK',
+                        'Origin' => $this->authressLoginHostUrl
+                    ],
+                    'json' => [
+                        'code' => $authCode,
+                        'grant_type' => 'authorization_code',
+                        'redirect_uri' => $authRequest->redirectUrl,
+                        'code_verifier' => $authRequest->codeVerifier,
+                        'client_id' => $this->applicationId
                     ]
                 ]);
-                $cookieJar = $this->client->getConfig('cookies');
-                $authressSession = $cookieJar->getCookieByName('authress-session') !== null ? $cookieJar->getCookieByName('authress-session')->getValue() : null;
-                $accessToken = $cookieJar->getCookieByName('authorization')->getValue();
-                $idToken = $cookieJar->getCookieByName('user')->getValue();
-                setcookie('authorization', $accessToken, [
-                    'expires' => $cookieJar->getCookieByName('authorization')->getExpires(),
-                    'path' => '/',
-                    'secure' => true,
-                    'samesite' => 'Strict'
-                ]);
-                setcookie('user', $idToken, [
-                    'expires' => $cookieJar->getCookieByName('user')->getExpires(),
-                    'path' => '/',
-                    'secure' => true,
-                    'samesite' => 'Strict'
-                ]);
-                setcookie('authentication-session', $authressSession, [
-                    'expires' => $cookieJar->getCookieByName('authress-session') !== null ? $cookieJar->getCookieByName('authress-session')->getExpires() : 0,
-                    'path' => '/',
-                    'httponly' => true,
-                    'secure' => true,
-                    'samesite' => 'Strict'
-                ]);
-                return isset($idToken) && $idToken !== null && $idToken !== '';
-            } catch (\Exception $e) {
-                if ($e->getCode() !== 403 && $e->getCode() !== 404) {
-                    throw $e;
-                }
-            }
 
-            $userData = $this->getUserIdentity();
-            // User is now logged in
-            if ($userData !== null) {
+                $json = json_decode($response->getBody());
+                $idToken = $json->id_token;
+                $accessToken = $json->access_token;
+                $_SESSION['authorization'] = $accessToken;
+                $_SESSION['user'] = $idToken;
+                unset($_SESSION["authenticationRequest"]);
                 return true;
+            } catch (\Exception $e) {
+                unset($_SESSION["authenticationRequest"]);
+                throw $e;
             }
         }
+
+        try {
+            $response = $this->client->request('GET', '/api/session', [
+                'headers' => [
+                    'Cookie' => 'authress-session=' . (isset($_COOKIE["authress-session"]) ? $_COOKIE["authress-session"] : ''),
+                    'User-Agent' => 'PHP AuthressSDK',
+                    'Origin' => $this->authressLoginHostUrl
+                ]
+            ]);
+            $cookieJar = $this->client->getConfig('cookies');
+            $authressSession = $cookieJar->getCookieByName('authress-session') !== null ? $cookieJar->getCookieByName('authress-session')->getValue() : null;
+            setcookie('authress-session', $authressSession, [
+                'expires' => time() + 60 * 60 * 24 * 90,
+                'domain' => str_replace("https://", "", $this->authressLoginHostUrl),
+                'path' => '/',
+                'httponly' => true,
+                'secure' => true,
+                'samesite' => 'Strict'
+            ]);
+
+
+            $json = json_decode($response->getBody());
+            $idToken = isset($json->id_token) ? $json->id_token : null;
+            $accessToken = isset($json->access_token) ? $json->access_token : null;
+            $_SESSION['authorization'] = $accessToken;
+            $_SESSION['user'] = $idToken;
+            if (!isset($idToken) || $idToken === null || $idToken === '') {
+                return false;
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            if ($e->getCode() !== 403 && $e->getCode() !== 404) {
+                throw $e;
+            }
+        }
+
         return false;
     }
 
@@ -259,7 +273,7 @@ class LoginClient
      */
     public function getToken(): ?string
     {
-        $accessToken = isset($_COOKIE['authorization']) ? $_COOKIE['authorization'] : (isset($_GET) && isset($_GET['access_token']) ? $_GET['access_token'] : null);
+        $accessToken = isset($_SESSION['authorization']) ? $_SESSION['authorization'] : null;
         return $accessToken;
     }
 
@@ -268,11 +282,15 @@ class LoginClient
     * @return object The user data object.
     */
     public function getUserIdentity() {
-        $idToken = isset($_COOKIE['user']) ? $_COOKIE['user'] : (isset($_GET) && isset($_GET['id_token']) ? $_GET['id_token'] : null);
+        $idToken = isset($_SESSION['user']) ? $_SESSION['user']: null;
         if ($idToken === null) {
             return null;
         }
-        return json_decode(base64_decode(strtr($this->decodeToken($idToken)->toString(), '-_', '+/')));
+        $decoded = json_decode(base64_decode(strtr($this->decodeToken($idToken)->toString(), '-_', '+/')));
+        if ($decoded->exp < time()) {
+            return null;
+        }
+        return $decoded;
     }
 
     private function decodeToken(string $token) {

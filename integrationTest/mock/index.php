@@ -37,5 +37,6 @@ echo "UserId: " . $authressClient->login->getUserIdentity()->sub . "<br>";
 
 $verifiedUserObject = $authressClient->login->verifyToken();
 echo "UserObject: " . json_encode($verifiedUserObject) . "<br>";
+echo "Access Token: " . $authressClient->login->getToken() . "<br>";
 
 ?>
