@@ -214,8 +214,10 @@ class LoginClient
                 ]);
 
                 $json = json_decode($response->getBody());
-                $idToken = $json->id_token;
-                $accessToken = $json->access_token;
+                $idToken = isset($json->id_token) ? $json->id_token : null;
+                $cookieJar = $this->client->getConfig('cookies');
+                $accessTokenCookie = $cookieJar->getCookieByName('authorization') !== null ? $cookieJar->getCookieByName('authorization')->getValue() : null;
+                $accessToken = isset($json->access_token) ? $json->access_token : $accessTokenCookie;
                 $_SESSION['authorization'] = $accessToken;
                 $_SESSION['user'] = $idToken;
                 unset($_SESSION["authenticationRequest"]);
@@ -248,7 +250,9 @@ class LoginClient
 
             $json = json_decode($response->getBody());
             $idToken = isset($json->id_token) ? $json->id_token : null;
-            $accessToken = isset($json->access_token) ? $json->access_token : null;
+            $cookieJar = $this->client->getConfig('cookies');
+            $accessTokenCookie = $cookieJar->getCookieByName('authorization') !== null ? $cookieJar->getCookieByName('authorization')->getValue() : null;
+            $accessToken = isset($json->access_token) ? $json->access_token : $accessTokenCookie;
             $_SESSION['authorization'] = $accessToken;
             $_SESSION['user'] = $idToken;
             if (!isset($idToken) || $idToken === null || $idToken === '') {

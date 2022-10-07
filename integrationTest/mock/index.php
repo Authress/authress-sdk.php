@@ -30,10 +30,12 @@ session_start();
 $sessionExists = $authressClient->login->userSessionExists($options);
 echo "Session Exists: " . $sessionExists . "<br>";
 
-$result = $authressClient->login->authenticate($options);
-echo "Login Result: " . $result . "<br>";
-echo "Issuer: " . $authressClient->login->getUserIdentity()->iss . "<br>";
-echo "UserId: " . $authressClient->login->getUserIdentity()->sub . "<br>";
+if (!$sessionExists) {
+    $result = $authressClient->login->authenticate($options);
+    echo "Login Result: " . $result . "<br>";
+    echo "Issuer: " . $authressClient->login->getUserIdentity()->iss . "<br>";
+    echo "UserId: " . $authressClient->login->getUserIdentity()->sub . "<br>";
+}
 
 $verifiedUserObject = $authressClient->login->verifyToken();
 echo "UserObject: " . json_encode($verifiedUserObject) . "<br>";
