@@ -127,6 +127,7 @@ $authressClient = new AuthressClient($authressCustomDomain, $applicationId);
 
 // Returns true if the user is successfully logged in, and otherwise redirects the user to appropriate login page.
 session_start();
+$token = $authressClient->login->getToken();
 $accessTokenClaims = $authressClient->login->verifyToken($token);
 echo json_encode($accessTokenClaims);
 
