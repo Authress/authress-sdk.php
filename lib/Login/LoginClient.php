@@ -91,6 +91,128 @@ class LoginClient
         return $protocol . '://' . $host . $filteredURL;
     }
 
+    /**
+     * unlinkIdentity
+     * 
+     * Unlink an identity from the user's account. Throws an error if identity cannot be unlinked.
+     * @param  string Specify the provider connection id that user would like to unlink - see https://authress.io/app/#/manage?focus=connections (required)
+     * @throws InvalidArgumentException
+     */
+    public function unlinkIdentity(string $connectionId)
+    {
+        $userSessionExists = $this->userSessionExists();
+        $token = $this->getToken();
+        if (!$userSessionExists || !$token) {
+            throw new \Exception("User must be logged into an existing account before linking a second account.");
+        }
+
+        if ($connectionId === null) {
+            throw new InvalidArgumentException("connectionId must be specified");
+        }
+
+        try {
+            $response = $this->client->request('DELETE', '/api/identities/' . $connectionId, [
+                'headers' => [
+                    'Cookie' => 'authress-session=' . (isset($_COOKIE["authress-session"]) ? $_COOKIE["authress-session"] : ''),
+                    'Authorization' => 'Bearer ' . $token,
+                    'User-Agent' => 'PHP AuthressSDK',
+                    'Origin' => $this->authressLoginHostUrl
+                ]
+            ]);
+            $statusCode = $response->getStatusCode();
+    
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    $response->getBody()
+                );
+            }
+        } catch (RequestException $e) {
+            throw new ApiException(
+                "[{$e->getCode()}] {$e->getMessage()}",
+                $e->getCode(),
+                $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                $e->getResponse() ? $e->getResponse()->getBody()->getContents() : null
+            );
+        }
+    }
+
+    /**
+     * linkIdentity
+     * 
+     * Link a new identity to the currently logged in user. The user will be asked to authenticate to a new connection. This will navigate the user to their selected connection/provider and then redirect back to the LinkIdentityParameters.redirectUrl.
+     * @param  AuthressSdk\Login\LinkIdentityParameters $LinkIdentityParameters Parameters for selecting which identity of a user should be linked. (required)
+     * @throws InvalidArgumentException
+     * @throws \Exception
+     */
+    public function linkIdentity(LinkIdentityParameters $linkIdentityParameters)
+    {
+        $userSessionExists = $this->userSessionExists();
+        $token = $this->getToken();
+        if (!$userSessionExists || !$token) {
+            throw new \Exception("User must be logged into an existing account before linking a second account.");
+        }
+
+        if ($linkIdentityParameters->connectionId === null && $linkIdentityParameters->tenantLookupIdentifier === null) {
+            throw new InvalidArgumentException("connectionId or tenantLookupIdentifier must be specified");
+        }
+
+        $codeVerifier = Pkce::generateCodeVerifier();
+        $codeChallenge = Pkce::generateCodeChallenge($codeVerifier);
+
+        $redirectUrl = isset($linkIdentityParameters->redirectUrl) ? $linkIdentityParameters->redirectUrl : $this->getCurrentUrl();
+
+        try {
+            $response = $this->client->request('POST', '/api/authentication', [
+                'headers' => [
+                    'Cookie' => 'authress-session=' . (isset($_COOKIE["authress-session"]) ? $_COOKIE["authress-session"] : ''),
+                    'Authorization' => 'Bearer ' . $token,
+                    'User-Agent' => 'PHP AuthressSDK',
+                    'Origin' => $this->authressLoginHostUrl
+                ],
+                'json' => [
+                    'linkIdentity' => true,
+                    'redirectUrl' => $redirectUrl,
+                    'codeChallengeMethod' => 'S256',
+                    'codeChallenge' => $codeChallenge,
+                    'connectionId' => $linkIdentityParameters->connectionId,
+                    'tenantLookupIdentifier' => $linkIdentityParameters->tenantLookupIdentifier,
+                    'applicationId' => $this->applicationId
+                ]
+            ]);
+            $statusCode = $response->getStatusCode();
+    
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s)',
+                        $statusCode,
+                        $request->getUri()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    $response->getBody()
+                );
+            }
+
+            $json = json_decode($response->getBody());
+            header("Location: " . $json->authenticationUrl);
+            exit();
+        } catch (RequestException $e) {
+            throw new ApiException(
+                "[{$e->getCode()}] {$e->getMessage()}",
+                $e->getCode(),
+                $e->getResponse() ? $e->getResponse()->getHeaders() : null,
+                $e->getResponse() ? $e->getResponse()->getBody()->getContents() : null
+            );
+        }
+    }
 
     /**
      * authenticate
@@ -133,7 +255,6 @@ class LoginClient
                     'applicationId' => $this->applicationId,
                     'responseLocation' => 'query',
                     'flowType' => 'code'
-
                 ]
             ]);
             $statusCode = $response->getStatusCode();
