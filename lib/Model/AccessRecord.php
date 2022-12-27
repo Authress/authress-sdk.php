@@ -230,9 +230,6 @@ class AccessRecord implements ModelInterface, ArrayAccess
         if ($this->container['account'] === null) {
             $invalidProperties[] = "'account' can't be null";
         }
-        if ($this->container['users'] === null) {
-            $invalidProperties[] = "'users' can't be null";
-        }
         if ($this->container['statements'] === null) {
             $invalidProperties[] = "'statements' can't be null";
         }

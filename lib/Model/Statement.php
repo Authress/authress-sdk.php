@@ -40,7 +40,10 @@ class Statement implements ModelInterface, ArrayAccess
       */
     protected static $swaggerTypes = [
         'roles' => 'string[]',
-'resources' => '\AuthressSdk\Model\V1recordsResources[]'    ];
+        'resources' => '\AuthressSdk\Model\V1recordsResources[]',
+        'users' => '\AuthressSdk\Model\V1recordsUsers[]',
+        'groups' => '\AuthressSdk\Model\LinkedGroup[]'
+    ];
 
     /**
       * Array of property to format mappings. Used for (de)serialization
@@ -49,7 +52,10 @@ class Statement implements ModelInterface, ArrayAccess
       */
     protected static $swaggerFormats = [
         'roles' => null,
-'resources' => null    ];
+        'resources' => null,
+        'users' => null,
+        'groups' => null
+    ];
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -79,7 +85,10 @@ class Statement implements ModelInterface, ArrayAccess
      */
     protected static $attributeMap = [
         'roles' => 'roles',
-'resources' => 'resources'    ];
+        'resources' => 'resources',
+        'users' => 'users',
+        'groups' => 'groups'
+    ];
 
     /**
      * Array of attributes to setter functions (for deserialization of responses)
@@ -88,7 +97,10 @@ class Statement implements ModelInterface, ArrayAccess
      */
     protected static $setters = [
         'roles' => 'setRoles',
-'resources' => 'setResources'    ];
+        'resources' => 'setResources',
+        'users' => 'setUsers',
+        'groups' => 'setGroups'
+    ];
 
     /**
      * Array of attributes to getter functions (for serialization of requests)
@@ -97,7 +109,10 @@ class Statement implements ModelInterface, ArrayAccess
      */
     protected static $getters = [
         'roles' => 'getRoles',
-'resources' => 'getResources'    ];
+        'resources' => 'getResources',
+        'users' => 'getUsers',
+        'groups' => 'getGroups'
+    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -150,6 +165,8 @@ class Statement implements ModelInterface, ArrayAccess
     {
         $this->container['roles'] = isset($data['roles']) ? $data['roles'] : null;
         $this->container['resources'] = isset($data['resources']) ? $data['resources'] : null;
+        $this->container['users'] = isset($data['users']) ? $data['users'] : null;
+        $this->container['groups'] = isset($data['groups']) ? $data['groups'] : null;
     }
 
     /**
@@ -229,6 +246,55 @@ class Statement implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
+    /**
+     * Gets users
+     *
+     * @return \AuthressSdk\Model\V1recordsUsers[]
+     */
+    public function getUsers()
+    {
+        return $this->container['users'];
+    }
+
+    /**
+     * Sets users
+     *
+     * @param \AuthressSdk\Model\V1recordsUsers[] $users The list of users this record applies to
+     *
+     * @return $this
+     */
+    public function setUsers($users)
+    {
+        $this->container['users'] = $users;
+
+        return $this;
+    }
+
+    /**
+     * Gets groups
+     *
+     * @return \AuthressSdk\Model\LinkedGroup[]
+     */
+    public function getGroups()
+    {
+        return $this->container['groups'];
+    }
+
+    /**
+     * Sets groups
+     *
+     * @param \AuthressSdk\Model\LinkedGroup[] $groups The list of groups this record applies to. Users in these groups will be receive access to the resources listed.
+     *
+     * @return $this
+     */
+    public function setGroups($groups)
+    {
+        $this->container['groups'] = $groups;
+
+        return $this;
+    }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
