@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AuthressSdk\Login;
 
+use Exception;
+
 /**
  * Class PKCE.
  */
@@ -24,11 +26,11 @@ final class Pkce
 
         while (($len = mb_strlen($string)) < 128) {
             $size = 128 - $len;
-            $size = $size >= 1 ? $size : 1;
+            $size = max($size, 1);
 
             try {
                 $bytes = random_bytes($size);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $bytes = (string) openssl_random_pseudo_bytes($size);
             }
 

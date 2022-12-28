@@ -131,19 +131,19 @@ class V1recordsLinks implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['self'] = isset($data['self']) ? $data['self'] : null;
+        $this->container['self'] = $data['self'] ?? null;
     }
 
     /**
@@ -217,7 +217,7 @@ class V1recordsLinks implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

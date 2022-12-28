@@ -13,6 +13,7 @@ namespace AuthressSdk\Model;
 
 use \ArrayAccess;
 use \AuthressSdk\ObjectSerializer;
+use InvalidArgumentException;
 
 /**
  * AccessRecord Class Doc Comment
@@ -183,28 +184,28 @@ class AccessRecord implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['record_id'] = isset($data['record_id']) ? $data['record_id'] : null;
-        $this->container['name'] = isset($data['name']) ? $data['name'] : null;
-        $this->container['description'] = isset($data['description']) ? $data['description'] : null;
-        $this->container['status'] = isset($data['status']) ? $data['status'] : null;
-        $this->container['account'] = isset($data['account']) ? $data['account'] : null;
-        $this->container['users'] = isset($data['users']) ? $data['users'] : null;
-        $this->container['groups'] = isset($data['groups']) ? $data['groups'] : null;
-        $this->container['admins'] = isset($data['admins']) ? $data['admins'] : null;
-        $this->container['statements'] = isset($data['statements']) ? $data['statements'] : null;
-        $this->container['links'] = isset($data['links']) ? $data['links'] : null;
+        $this->container['record_id'] = $data['record_id'] ?? null;
+        $this->container['name'] = $data['name'] ?? null;
+        $this->container['description'] = $data['description'] ?? null;
+        $this->container['status'] = $data['status'] ?? null;
+        $this->container['account'] = $data['account'] ?? null;
+        $this->container['users'] = $data['users'] ?? null;
+        $this->container['groups'] = $data['groups'] ?? null;
+        $this->container['admins'] = $data['admins'] ?? null;
+        $this->container['statements'] = $data['statements'] ?? null;
+        $this->container['links'] = $data['links'] ?? null;
     }
 
     /**
@@ -344,7 +345,7 @@ class AccessRecord implements ModelInterface, ArrayAccess
     {
         $allowedValues = $this->getStatusAllowableValues();
         if (!is_null($status) && !in_array($status, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     "Invalid value for 'status', must be one of '%s'",
                     implode("', '", $allowedValues)
@@ -520,7 +521,7 @@ class AccessRecord implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

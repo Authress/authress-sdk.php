@@ -13,6 +13,7 @@ namespace AuthressSdk\Model;
 
 use \ArrayAccess;
 use \AuthressSdk\ObjectSerializer;
+use DateTime;
 
 /**
  * ClientAccessKey Class Doc Comment
@@ -147,22 +148,22 @@ class ClientAccessKey implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['key_id'] = isset($data['key_id']) ? $data['key_id'] : null;
-        $this->container['client_id'] = isset($data['client_id']) ? $data['client_id'] : null;
-        $this->container['generation_date'] = isset($data['generation_date']) ? $data['generation_date'] : null;
-        $this->container['access_key'] = isset($data['access_key']) ? $data['access_key'] : null;
+        $this->container['key_id'] = $data['key_id'] ?? null;
+        $this->container['client_id'] = $data['client_id'] ?? null;
+        $this->container['generation_date'] = $data['generation_date'] ?? null;
+        $this->container['access_key'] = $data['access_key'] ?? null;
     }
 
     /**
@@ -243,7 +244,7 @@ class ClientAccessKey implements ModelInterface, ArrayAccess
     /**
      * Gets generation_date
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getGenerationDate()
     {
@@ -253,7 +254,7 @@ class ClientAccessKey implements ModelInterface, ArrayAccess
     /**
      * Sets generation_date
      *
-     * @param \DateTime $generation_date generation_date
+     * @param DateTime $generation_date generation_date
      *
      * @return $this
      */
@@ -308,7 +309,7 @@ class ClientAccessKey implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

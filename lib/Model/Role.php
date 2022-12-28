@@ -147,22 +147,22 @@ class Role implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['role_id'] = isset($data['role_id']) ? $data['role_id'] : null;
-        $this->container['name'] = isset($data['name']) ? $data['name'] : null;
-        $this->container['description'] = isset($data['description']) ? $data['description'] : null;
-        $this->container['permissions'] = isset($data['permissions']) ? $data['permissions'] : null;
+        $this->container['role_id'] = $data['role_id'] ?? null;
+        $this->container['name'] = $data['name'] ?? null;
+        $this->container['description'] = $data['description'] ?? null;
+        $this->container['permissions'] = $data['permissions'] ?? null;
     }
 
     /**
@@ -314,7 +314,7 @@ class Role implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

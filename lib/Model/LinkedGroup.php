@@ -132,19 +132,19 @@ class LinkedGroup implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['group_id'] = isset($data['group_id']) ? $data['group_id'] : null;
+        $this->container['group_id'] = $data['group_id'] ?? null;
     }
 
     /**
@@ -218,7 +218,7 @@ class LinkedGroup implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

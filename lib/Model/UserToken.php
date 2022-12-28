@@ -152,23 +152,23 @@ class UserToken implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['account'] = isset($data['account']) ? $data['account'] : null;
-        $this->container['user_id'] = isset($data['user_id']) ? $data['user_id'] : null;
-        $this->container['token_id'] = isset($data['token_id']) ? $data['token_id'] : null;
-        $this->container['token'] = isset($data['token']) ? $data['token'] : null;
-        $this->container['links'] = isset($data['links']) ? $data['links'] : null;
+        $this->container['account'] = $data['account'] ?? null;
+        $this->container['user_id'] = $data['user_id'] ?? null;
+        $this->container['token_id'] = $data['token_id'] ?? null;
+        $this->container['token'] = $data['token'] ?? null;
+        $this->container['links'] = $data['links'] ?? null;
     }
 
     /**
@@ -344,7 +344,7 @@ class UserToken implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

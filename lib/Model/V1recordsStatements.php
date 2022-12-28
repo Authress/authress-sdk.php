@@ -136,20 +136,20 @@ class V1recordsStatements implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['roles'] = isset($data['roles']) ? $data['roles'] : null;
-        $this->container['resources'] = isset($data['resources']) ? $data['resources'] : null;
+        $this->container['roles'] = $data['roles'] ?? null;
+        $this->container['resources'] = $data['resources'] ?? null;
     }
 
     /**
@@ -250,7 +250,7 @@ class V1recordsStatements implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

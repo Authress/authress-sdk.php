@@ -13,6 +13,7 @@ namespace AuthressSdk\Model;
 
 use \ArrayAccess;
 use \AuthressSdk\ObjectSerializer;
+use DateTime;
 
 /**
  * Account Class Doc Comment
@@ -151,23 +152,23 @@ class Account implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['account_id'] = isset($data['account_id']) ? $data['account_id'] : null;
-        $this->container['created_time'] = isset($data['created_time']) ? $data['created_time'] : null;
-        $this->container['domain'] = isset($data['domain']) ? $data['domain'] : null;
-        $this->container['company'] = isset($data['company']) ? $data['company'] : null;
-        $this->container['links'] = isset($data['links']) ? $data['links'] : null;
+        $this->container['account_id'] = $data['account_id'] ?? null;
+        $this->container['created_time'] = $data['created_time'] ?? null;
+        $this->container['domain'] = $data['domain'] ?? null;
+        $this->container['company'] = $data['company'] ?? null;
+        $this->container['links'] = $data['links'] ?? null;
     }
 
     /**
@@ -236,7 +237,7 @@ class Account implements ModelInterface, ArrayAccess
     /**
      * Gets created_time
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedTime()
     {
@@ -246,7 +247,7 @@ class Account implements ModelInterface, ArrayAccess
     /**
      * Sets created_time
      *
-     * @param \DateTime $created_time created_time
+     * @param DateTime $created_time created_time
      *
      * @return $this
      */
@@ -349,7 +350,7 @@ class Account implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

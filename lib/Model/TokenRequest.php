@@ -13,6 +13,7 @@ namespace AuthressSdk\Model;
 
 use \ArrayAccess;
 use \AuthressSdk\ObjectSerializer;
+use DateTime;
 
 /**
  * TokenRequest Class Doc Comment
@@ -136,20 +137,20 @@ class TokenRequest implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['statements'] = isset($data['statements']) ? $data['statements'] : null;
-        $this->container['expires'] = isset($data['expires']) ? $data['expires'] : null;
+        $this->container['statements'] = $data['statements'] ?? null;
+        $this->container['expires'] = $data['expires'] ?? null;
     }
 
     /**
@@ -209,7 +210,7 @@ class TokenRequest implements ModelInterface, ArrayAccess
     /**
      * Gets expires
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getExpires()
     {
@@ -219,7 +220,7 @@ class TokenRequest implements ModelInterface, ArrayAccess
     /**
      * Sets expires
      *
-     * @param \DateTime $expires The ISO8601 datetime when the token will expire. Default is 24 hours from now.
+     * @param DateTime $expires The ISO8601 datetime when the token will expire. Default is 24 hours from now.
      *
      * @return $this
      */
@@ -250,7 +251,7 @@ class TokenRequest implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

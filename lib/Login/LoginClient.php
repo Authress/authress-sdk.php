@@ -13,8 +13,11 @@ namespace AuthressSdk\Login;
 
 use AuthressSdk\ApiException;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Request;
@@ -43,6 +46,11 @@ class LoginClient
     protected $client;
 
     /**
+     * @var \GuzzleHttp\Cookie\CookieJarInterface|\GuzzleHttp\Cookie\CookieJar
+     */
+    protected CookieJarInterface $cookieJar;
+
+    /**
      * @var string
      */
     private string $authressLoginHostUrl;
@@ -61,9 +69,11 @@ class LoginClient
         $this->authressLoginHostUrl = $authressLoginHostUrl;
         $this->applicationId = $applicationId;
 
+        $this->cookieJar = new CookieJar();
+
         $this->client = new Client([
             'base_uri' => $this->authressLoginHostUrl,
-            'cookies' => true
+            'cookies' => $this->cookieJar,
         ]);
     }
 
@@ -75,8 +85,8 @@ class LoginClient
         $protocol = substr( $sp, 0, strpos( $sp, '/' ) ) . ( ( $ssl ) ? 's' : '' );
         $port     = $s['SERVER_PORT'];
         $port     = ( ( ! $ssl && $port == '80' ) || ( $ssl && $port == '443' ) ) ? '' : ':' . $port;
-        $host     = isset( $s['HTTP_HOST'] ) ? $s['HTTP_HOST'] : null;
-        $host     = isset( $host ) ? $host : $s['SERVER_NAME'] . $port;
+        $host     = $s['HTTP_HOST'] ?? null;
+        $host     = $host ?? $s['SERVER_NAME'] . $port;
 
         // Remove specific parameter from query string
         $filteredURL = $_SERVER['REQUEST_URI'];
@@ -103,7 +113,7 @@ class LoginClient
         $userSessionExists = $this->userSessionExists();
         $token = $this->getToken();
         if (!$userSessionExists || !$token) {
-            throw new \Exception("User must be logged into an existing account before linking a second account.");
+            throw new Exception("User must be logged into an existing account before linking a second account.");
         }
 
         if ($connectionId === null) {
@@ -113,7 +123,7 @@ class LoginClient
         try {
             $response = $this->client->request('DELETE', '/api/identities/' . $connectionId, [
                 'headers' => [
-                    'Cookie' => 'authress-session=' . (isset($_COOKIE["authress-session"]) ? $_COOKIE["authress-session"] : ''),
+                    'Cookie' => 'authress-session=' . ($_COOKIE["authress-session"] ?? ''),
                     'Authorization' => 'Bearer ' . $token,
                     'User-Agent' => 'PHP AuthressSDK',
                     'Origin' => $this->authressLoginHostUrl
@@ -145,18 +155,18 @@ class LoginClient
 
     /**
      * linkIdentity
-     * 
+     *
      * Link a new identity to the currently logged in user. The user will be asked to authenticate to a new connection. This will navigate the user to their selected connection/provider and then redirect back to the LinkIdentityParameters.redirectUrl.
-     * @param  AuthressSdk\Login\LinkIdentityParameters $LinkIdentityParameters Parameters for selecting which identity of a user should be linked. (required)
-     * @throws InvalidArgumentException
-     * @throws \Exception
+     * @param \AuthressSdk\Login\LinkIdentityParameters $linkIdentityParameters
+     * @throws \AuthressSdk\ApiException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function linkIdentity(LinkIdentityParameters $linkIdentityParameters)
     {
         $userSessionExists = $this->userSessionExists();
         $token = $this->getToken();
         if (!$userSessionExists || !$token) {
-            throw new \Exception("User must be logged into an existing account before linking a second account.");
+            throw new Exception("User must be logged into an existing account before linking a second account.");
         }
 
         if ($linkIdentityParameters->connectionId === null && $linkIdentityParameters->tenantLookupIdentifier === null) {
@@ -166,12 +176,12 @@ class LoginClient
         $codeVerifier = Pkce::generateCodeVerifier();
         $codeChallenge = Pkce::generateCodeChallenge($codeVerifier);
 
-        $redirectUrl = isset($linkIdentityParameters->redirectUrl) ? $linkIdentityParameters->redirectUrl : $this->getCurrentUrl();
+        $redirectUrl = $linkIdentityParameters->redirectUrl ?? $this->getCurrentUrl();
 
         try {
             $response = $this->client->request('POST', '/api/authentication', [
                 'headers' => [
-                    'Cookie' => 'authress-session=' . (isset($_COOKIE["authress-session"]) ? $_COOKIE["authress-session"] : ''),
+                    'Cookie' => 'authress-session=' . ($_COOKIE["authress-session"] ?? ''),
                     'Authorization' => 'Bearer ' . $token,
                     'User-Agent' => 'PHP AuthressSDK',
                     'Origin' => $this->authressLoginHostUrl
@@ -218,8 +228,8 @@ class LoginClient
      * authenticate
      * 
      * Logs a user in, if the user is not logged in, will redirect the user to their selected connection/provider and then redirect back to the authenticationParameters.redirectUrl
-     * @param  AuthressSdk\Login\AuthenticationParameters $authenticationParameters Parameters for controlling how and when users should be authenticated for the app. (required)
-     * @throws InvalidArgumentException
+     * @param  \AuthressSdk\Login\AuthenticationParameters $authenticationParameters Parameters for controlling how and when users should be authenticated for the app. (required)
+     * @throws \InvalidArgumentException
      * @return boolean
      */
     public function authenticate(AuthenticationParameters $authenticationParameters): bool
@@ -238,7 +248,7 @@ class LoginClient
         $codeVerifier = Pkce::generateCodeVerifier();
         $codeChallenge = Pkce::generateCodeChallenge($codeVerifier);
 
-        $redirectUrl = isset($authenticationParameters->redirectUrl) ? $authenticationParameters->redirectUrl : $this->getCurrentUrl();
+        $redirectUrl = $authenticationParameters->redirectUrl ?? $this->getCurrentUrl();
 
         try {
             $response = $this->client->request('POST', '/api/authentication', [
@@ -301,11 +311,11 @@ class LoginClient
      */
     public function userSessionExists(): bool
     {
-        $authRequest = isset($_SESSION["authenticationRequest"]) ? $_SESSION["authenticationRequest"] : null;
+        $authRequest = $_SESSION["authenticationRequest"] ?? null;
 
         // Your app was redirected to from the Authress Hosted Login page. The next step is to show the user the login widget and enable them to login.
-        $state = isset($_GET['state']) ? $_GET['state'] : null;
-        $flow = isset($_GET['flow']) ? $_GET['flow'] : null;
+        $state = $_GET['state'] ?? null;
+        $flow = $_GET['flow'] ?? null;
         if ($state !== null && $flow === 'oauthLogin') {
             return false;
         }
@@ -316,7 +326,7 @@ class LoginClient
             return true;
         }
 
-        $authCode = isset($_GET['code']) ? $_GET['code'] : null;
+        $authCode = $_GET['code'] ?? null;
         $nonce = isset($authRequest) && isset($authRequest->nonce) ? $authRequest->nonce : null;
         if (isset($authCode) && isset($nonce)) {
             try {
@@ -335,15 +345,14 @@ class LoginClient
                 ]);
 
                 $json = json_decode($response->getBody());
-                $idToken = isset($json->id_token) ? $json->id_token : null;
-                $cookieJar = $this->client->getConfig('cookies');
-                $accessTokenCookie = $cookieJar->getCookieByName('authorization') !== null ? $cookieJar->getCookieByName('authorization')->getValue() : null;
-                $accessToken = isset($json->access_token) ? $json->access_token : $accessTokenCookie;
+                $idToken = $json->id_token ?? null;
+                $accessTokenCookie = $this->cookieJar->getCookieByName('authorization') !== null ? $this->cookieJar->getCookieByName('authorization')->getValue() : null;
+                $accessToken = $json->access_token ?? $accessTokenCookie;
                 $_SESSION['authorization'] = $accessToken;
                 $_SESSION['user'] = $idToken;
                 unset($_SESSION["authenticationRequest"]);
                 return true;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 unset($_SESSION["authenticationRequest"]);
                 throw $e;
             }
@@ -352,13 +361,12 @@ class LoginClient
         try {
             $response = $this->client->request('GET', '/api/session', [
                 'headers' => [
-                    'Cookie' => 'authress-session=' . (isset($_COOKIE["authress-session"]) ? $_COOKIE["authress-session"] : ''),
+                    'Cookie' => 'authress-session=' . ($_COOKIE["authress-session"] ?? ''),
                     'User-Agent' => 'PHP AuthressSDK',
                     'Origin' => $this->authressLoginHostUrl
                 ]
             ]);
-            $cookieJar = $this->client->getConfig('cookies');
-            $authressSession = $cookieJar->getCookieByName('authress-session') !== null ? $cookieJar->getCookieByName('authress-session')->getValue() : null;
+            $authressSession = $this->cookieJar->getCookieByName('authress-session') !== null ? $this->cookieJar->getCookieByName('authress-session')->getValue() : null;
             setcookie('authress-session', $authressSession, [
                 'expires' => time() + 60 * 60 * 24 * 90,
                 'domain' => str_replace("https://", "", $this->authressLoginHostUrl),
@@ -370,10 +378,9 @@ class LoginClient
 
 
             $json = json_decode($response->getBody());
-            $idToken = isset($json->id_token) ? $json->id_token : null;
-            $cookieJar = $this->client->getConfig('cookies');
-            $accessTokenCookie = $cookieJar->getCookieByName('authorization') !== null ? $cookieJar->getCookieByName('authorization')->getValue() : null;
-            $accessToken = isset($json->access_token) ? $json->access_token : $accessTokenCookie;
+            $idToken = $json->id_token ?? null;
+            $accessTokenCookie = $this->cookieJar->getCookieByName('authorization') !== null ? $this->cookieJar->getCookieByName('authorization')->getValue() : null;
+            $accessToken = $json->access_token ?? $accessTokenCookie;
             $_SESSION['authorization'] = $accessToken;
             $_SESSION['user'] = $idToken;
             if (!isset($idToken) || $idToken === null || $idToken === '') {
@@ -381,7 +388,7 @@ class LoginClient
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e->getCode() !== 403 && $e->getCode() !== 404) {
                 throw $e;
             }
@@ -398,8 +405,7 @@ class LoginClient
      */
     public function getToken(): ?string
     {
-        $accessToken = isset($_SESSION['authorization']) ? $_SESSION['authorization'] : null;
-        return $accessToken;
+        return isset($_SESSION['authorization']) ? $_SESSION['authorization'] : null;
     }
 
     /**
@@ -407,7 +413,7 @@ class LoginClient
     * @return object The user data object.
     */
     public function getUserIdentity() {
-        $idToken = isset($_SESSION['user']) ? $_SESSION['user']: null;
+        $idToken = $_SESSION['user'] ?? null;
         if ($idToken === null) {
             return null;
         }
@@ -442,12 +448,11 @@ class LoginClient
 
 		try {
 			$config->validator()->assert($token, ...$constraints);
-			$userObject = (object) $token->claims()->all();
-			return $userObject;
+            return (object) $token->claims()->all();
 		} catch (RequiredConstraintsViolated $e) {
-			throw new \Exception("Unauthorized");
-		} catch (\Exception $e) {
-			throw new \Exception("Unexpected exception verifying user token");
+			throw new Exception("Unauthorized");
+		} catch (Exception $e) {
+			throw new Exception("Unexpected exception verifying user token");
 		}
 	}
 
@@ -476,7 +481,7 @@ class LoginClient
 		}
 
 		if (empty($jwk) || $jwk === null) {
-			throw new \Exception("Unauthorized");
+			throw new Exception("Unauthorized");
 		}
         self::$jwkCache[$kid] = $jwk;
         return $_SESSION['jwk'] = $jwk;

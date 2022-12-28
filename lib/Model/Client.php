@@ -13,6 +13,7 @@ namespace AuthressSdk\Model;
 
 use \ArrayAccess;
 use \AuthressSdk\ObjectSerializer;
+use DateTime;
 
 /**
  * Client Class Doc Comment
@@ -147,22 +148,22 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['client_id'] = isset($data['client_id']) ? $data['client_id'] : null;
-        $this->container['created_time'] = isset($data['created_time']) ? $data['created_time'] : null;
-        $this->container['name'] = isset($data['name']) ? $data['name'] : null;
-        $this->container['options'] = isset($data['options']) ? $data['options'] : null;
+        $this->container['client_id'] = $data['client_id'] ?? null;
+        $this->container['created_time'] = $data['created_time'] ?? null;
+        $this->container['name'] = $data['name'] ?? null;
+        $this->container['options'] = $data['options'] ?? null;
     }
 
     /**
@@ -222,7 +223,7 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Gets created_time
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedTime()
     {
@@ -232,7 +233,7 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Sets created_time
      *
-     * @param \DateTime $created_time created_time
+     * @param DateTime $created_time created_time
      *
      * @return $this
      */
@@ -311,7 +312,7 @@ class Client implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

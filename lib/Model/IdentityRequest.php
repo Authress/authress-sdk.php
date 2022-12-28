@@ -137,20 +137,20 @@ class IdentityRequest implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['jwt'] = isset($data['jwt']) ? $data['jwt'] : null;
-        $this->container['preferred_audience'] = isset($data['preferred_audience']) ? $data['preferred_audience'] : null;
+        $this->container['jwt'] = $data['jwt'] ?? null;
+        $this->container['preferred_audience'] = $data['preferred_audience'] ?? null;
     }
 
     /**
@@ -248,7 +248,7 @@ class IdentityRequest implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

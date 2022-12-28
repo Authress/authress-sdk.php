@@ -14,6 +14,8 @@ namespace AuthressSdk;
 use AuthressSdk\AuthressClient;
 use AuthressSdk\ApiException;
 use AuthressSdk\ObjectSerializer;
+use PHPUnit\Framework\TestCase;
+
 /**
  * ServiceTest Class Doc Comment
  *
@@ -22,7 +24,7 @@ use AuthressSdk\ObjectSerializer;
  * @author   Authress Developers
  * @link     https://authress.io/app/#/api
  */
-class ServiceTest extends \PHPUnit\Framework\TestCase
+class ServiceTest extends TestCase
 {
     /**
      * @doesNotPerformAssertions

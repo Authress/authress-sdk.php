@@ -131,19 +131,19 @@ class V1recordsAccount implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['account_id'] = isset($data['account_id']) ? $data['account_id'] : null;
+        $this->container['account_id'] = $data['account_id'] ?? null;
     }
 
     /**
@@ -217,7 +217,7 @@ class V1recordsAccount implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

@@ -13,6 +13,7 @@ namespace AuthressSdk\Model;
 
 use \ArrayAccess;
 use \AuthressSdk\ObjectSerializer;
+use InvalidArgumentException;
 
 /**
  * V1resourcesresourceUriPermissions Class Doc Comment
@@ -149,20 +150,20 @@ self::ACTION__PUBLIC,        ];
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['action'] = isset($data['action']) ? $data['action'] : null;
-        $this->container['allow'] = isset($data['allow']) ? $data['allow'] : null;
+        $this->container['action'] = $data['action'] ?? null;
+        $this->container['allow'] = $data['allow'] ?? null;
     }
 
     /**
@@ -224,7 +225,7 @@ self::ACTION__PUBLIC,        ];
     {
         $allowedValues = $this->getActionAllowableValues();
         if (!in_array($action, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     "Invalid value for 'action', must be one of '%s'",
                     implode("', '", $allowedValues)
@@ -280,7 +281,7 @@ self::ACTION__PUBLIC,        ];
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

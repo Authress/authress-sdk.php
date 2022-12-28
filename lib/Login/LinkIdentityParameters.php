@@ -55,12 +55,12 @@ class LinkIdentityParameters
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values initializing the model
+     * @param array $data Associated array of property values initializing the model
      */
     public function __construct(array $data = null)
     {
-      $this->connectionId = isset($data['connectionId']) ? $data['connectionId'] : null;
-      $this->tenantLookupIdentifier = isset($data['tenantLookupIdentifier']) ? $data['tenantLookupIdentifier'] : null;
-      $this->redirectUrl = isset($data['redirectUrl']) ? $data['redirectUrl'] : null;
+      $this->connectionId = $data['connectionId'] ?? null;
+      $this->tenantLookupIdentifier = $data['tenantLookupIdentifier'] ?? null;
+      $this->redirectUrl = $data['redirectUrl'] ?? null;
     }
 }

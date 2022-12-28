@@ -11,16 +11,25 @@
 
 namespace AuthressSdk\Api;
 
+use AuthressSdk\Model\ResourcePermission;
+use AuthressSdk\Model\ResourcePermissionCollection;
+use AuthressSdk\Model\ResourceUsersCollection;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use AuthressSdk\ApiException;
 use AuthressSdk\AuthressClient;
 use AuthressSdk\HeaderSelector;
 use AuthressSdk\ObjectSerializer;
+use GuzzleHttp\Utils;
+use InvalidArgumentException;
+use RuntimeException;
+use stdClass;
 
 /**
  * ResourcePermissionsApi Class Doc Comment
@@ -73,8 +82,8 @@ class ResourcePermissionsApi
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\ResourcePermission
+     * @throws InvalidArgumentException
+     * @return ResourcePermission
      */
     public function getResourcePermissions($resource_uri)
     {
@@ -90,7 +99,7 @@ class ResourcePermissionsApi
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\ResourcePermission, HTTP status code, HTTP response headers (array of strings)
      */
     public function getResourcePermissionsWithHttpInfo($resource_uri)
@@ -143,15 +152,13 @@ class ResourcePermissionsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\ResourcePermission',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\ResourcePermission',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -164,8 +171,8 @@ class ResourcePermissionsApi
      *
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getResourcePermissionsAsync($resource_uri)
     {
@@ -184,8 +191,8 @@ class ResourcePermissionsApi
      *
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getResourcePermissionsAsyncWithHttpInfo($resource_uri)
     {
@@ -234,14 +241,14 @@ class ResourcePermissionsApi
      *
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getResourcePermissionsRequest($resource_uri)
     {
         // verify the required parameter 'resource_uri' is set
         if ($resource_uri === null || (is_array($resource_uri) && count($resource_uri) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $resource_uri when calling getResourcePermissions'
             );
         }
@@ -282,8 +289,8 @@ class ResourcePermissionsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -298,11 +305,11 @@ class ResourcePermissionsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -322,7 +329,7 @@ class ResourcePermissionsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -341,8 +348,8 @@ class ResourcePermissionsApi
      * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\ResourceUsersCollection
+     * @throws InvalidArgumentException
+     * @return ResourceUsersCollection
      */
     public function getResourceUsers($resource_uri, $limit = '20', $cursor = null)
     {
@@ -360,7 +367,7 @@ class ResourcePermissionsApi
      * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\ResourceUsersCollection, HTTP status code, HTTP response headers (array of strings)
      */
     public function getResourceUsersWithHttpInfo($resource_uri, $limit = '20', $cursor = null)
@@ -413,15 +420,13 @@ class ResourcePermissionsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\ResourceUsersCollection',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\ResourceUsersCollection',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -436,8 +441,8 @@ class ResourcePermissionsApi
      * @param  int $limit Max number of results to return (optional, default to 20)
      * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getResourceUsersAsync($resource_uri, $limit = '20', $cursor = null)
     {
@@ -458,8 +463,8 @@ class ResourcePermissionsApi
      * @param  int $limit Max number of results to return (optional, default to 20)
      * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getResourceUsersAsyncWithHttpInfo($resource_uri, $limit = '20', $cursor = null)
     {
@@ -510,14 +515,14 @@ class ResourcePermissionsApi
      * @param  int $limit Max number of results to return (optional, default to 20)
      * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getResourceUsersRequest($resource_uri, $limit = '20', $cursor = null)
     {
         // verify the required parameter 'resource_uri' is set
         if ($resource_uri === null || (is_array($resource_uri) && count($resource_uri) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $resource_uri when calling getResourceUsers'
             );
         }
@@ -566,8 +571,8 @@ class ResourcePermissionsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -582,11 +587,11 @@ class ResourcePermissionsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -606,7 +611,7 @@ class ResourcePermissionsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -622,8 +627,8 @@ class ResourcePermissionsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\ResourcePermissionCollection
+     * @throws InvalidArgumentException
+     * @return ResourcePermissionCollection
      */
     public function getResources()
     {
@@ -638,7 +643,7 @@ class ResourcePermissionsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\ResourcePermissionCollection, HTTP status code, HTTP response headers (array of strings)
      */
     public function getResourcesWithHttpInfo()
@@ -691,15 +696,13 @@ class ResourcePermissionsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\ResourcePermissionCollection',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\ResourcePermissionCollection',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -711,8 +714,8 @@ class ResourcePermissionsApi
      * List resource configurations.
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getResourcesAsync()
     {
@@ -730,8 +733,8 @@ class ResourcePermissionsApi
      * List resource configurations.
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getResourcesAsyncWithHttpInfo()
     {
@@ -779,7 +782,7 @@ class ResourcePermissionsApi
      * Create request for operation 'getResources'
      *
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getResourcesRequest()
@@ -813,8 +816,8 @@ class ResourcePermissionsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -829,11 +832,11 @@ class ResourcePermissionsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -853,7 +856,7 @@ class ResourcePermissionsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -867,11 +870,11 @@ class ResourcePermissionsApi
      *
      * Update a resource permissions object.
      *
-     * @param  \AuthressSdk\Model\ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
+     * @param  ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function updateResourcePermissions($body, $resource_uri)
@@ -884,11 +887,11 @@ class ResourcePermissionsApi
      *
      * Update a resource permissions object.
      *
-     * @param  \AuthressSdk\Model\ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
+     * @param  ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function updateResourcePermissionsWithHttpInfo($body, $resource_uri)
@@ -938,11 +941,11 @@ class ResourcePermissionsApi
      *
      * Update a resource permissions object.
      *
-     * @param  \AuthressSdk\Model\ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
+     * @param  ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateResourcePermissionsAsync($body, $resource_uri)
     {
@@ -959,11 +962,11 @@ class ResourcePermissionsApi
      *
      * Update a resource permissions object.
      *
-     * @param  \AuthressSdk\Model\ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
+     * @param  ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateResourcePermissionsAsyncWithHttpInfo($body, $resource_uri)
     {
@@ -996,23 +999,23 @@ class ResourcePermissionsApi
     /**
      * Create request for operation 'updateResourcePermissions'
      *
-     * @param  \AuthressSdk\Model\ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
+     * @param  ResourcePermission $body The contents of the permission to set on the resource. Overwrites existing data. (required)
      * @param  string $resource_uri The uri path of a resource to validate, must be URL encoded, uri segments are allowed. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function updateResourcePermissionsRequest($body, $resource_uri)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling updateResourcePermissions'
             );
         }
         // verify the required parameter 'resource_uri' is set
         if ($resource_uri === null || (is_array($resource_uri) && count($resource_uri) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $resource_uri when calling updateResourcePermissions'
             );
         }
@@ -1056,8 +1059,8 @@ class ResourcePermissionsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1072,11 +1075,11 @@ class ResourcePermissionsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1096,7 +1099,7 @@ class ResourcePermissionsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1108,7 +1111,7 @@ class ResourcePermissionsApi
     /**
      * Create http client option
      *
-     * @throws \RuntimeException on file opening failure
+     * @throws RuntimeException on file opening failure
      * @return array of http client options
      */
     protected function createHttpClientOption()
@@ -1117,7 +1120,7 @@ class ResourcePermissionsApi
         if ($this->config->getDebug()) {
             $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
             if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
             }
         }
 

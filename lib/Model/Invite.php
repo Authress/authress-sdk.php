@@ -137,20 +137,20 @@ class Invite implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['email'] = isset($data['email']) ? $data['email'] : null;
-        $this->container['statements'] = isset($data['statements']) ? $data['statements'] : null;
+        $this->container['email'] = $data['email'] ?? null;
+        $this->container['statements'] = $data['statements'] ?? null;
     }
 
     /**
@@ -248,7 +248,7 @@ class Invite implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

@@ -11,16 +11,24 @@
 
 namespace AuthressSdk\Api;
 
+use AuthressSdk\Model\ClientAccessKey;
+use AuthressSdk\Model\ClientCollection;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use AuthressSdk\ApiException;
 use AuthressSdk\AuthressClient;
 use AuthressSdk\HeaderSelector;
 use AuthressSdk\ObjectSerializer;
+use GuzzleHttp\Utils;
+use InvalidArgumentException;
+use RuntimeException;
+use stdClass;
 
 /**
  * ServiceClientsApi Class Doc Comment
@@ -73,7 +81,7 @@ class ServiceClientsApi
      * @param  \AuthressSdk\Model\Client $body body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \AuthressSdk\Model\Client
      */
     public function createClient($body)
@@ -90,7 +98,7 @@ class ServiceClientsApi
      * @param  \AuthressSdk\Model\Client $body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Client, HTTP status code, HTTP response headers (array of strings)
      */
     public function createClientWithHttpInfo($body)
@@ -143,15 +151,13 @@ class ServiceClientsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Client',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Client',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -164,8 +170,8 @@ class ServiceClientsApi
      *
      * @param  \AuthressSdk\Model\Client $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createClientAsync($body)
     {
@@ -184,8 +190,8 @@ class ServiceClientsApi
      *
      * @param  \AuthressSdk\Model\Client $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createClientAsyncWithHttpInfo($body)
     {
@@ -234,14 +240,14 @@ class ServiceClientsApi
      *
      * @param  \AuthressSdk\Model\Client $body (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function createClientRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling createClient'
             );
         }
@@ -277,8 +283,8 @@ class ServiceClientsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -293,11 +299,11 @@ class ServiceClientsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -317,7 +323,7 @@ class ServiceClientsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -335,7 +341,7 @@ class ServiceClientsApi
      * @param  string $key_id The id of the access key to remove from the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function deleteAccessKey($client_id, $key_id)
@@ -352,7 +358,7 @@ class ServiceClientsApi
      * @param  string $key_id The id of the access key to remove from the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function deleteAccessKeyWithHttpInfo($client_id, $key_id)
@@ -405,8 +411,8 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier of the client. (required)
      * @param  string $key_id The id of the access key to remove from the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteAccessKeyAsync($client_id, $key_id)
     {
@@ -426,8 +432,8 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier of the client. (required)
      * @param  string $key_id The id of the access key to remove from the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteAccessKeyAsyncWithHttpInfo($client_id, $key_id)
     {
@@ -463,20 +469,20 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier of the client. (required)
      * @param  string $key_id The id of the access key to remove from the client. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function deleteAccessKeyRequest($client_id, $key_id)
     {
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $client_id when calling deleteAccessKey'
             );
         }
         // verify the required parameter 'key_id' is set
         if ($key_id === null || (is_array($key_id) && count($key_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $key_id when calling deleteAccessKey'
             );
         }
@@ -525,8 +531,8 @@ class ServiceClientsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -541,11 +547,11 @@ class ServiceClientsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -565,7 +571,7 @@ class ServiceClientsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -582,7 +588,7 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier for the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function deleteClient($client_id)
@@ -598,7 +604,7 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier for the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function deleteClientWithHttpInfo($client_id)
@@ -650,8 +656,8 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteClientAsync($client_id)
     {
@@ -670,8 +676,8 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteClientAsyncWithHttpInfo($client_id)
     {
@@ -706,14 +712,14 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function deleteClientRequest($client_id)
     {
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $client_id when calling deleteClient'
             );
         }
@@ -754,8 +760,8 @@ class ServiceClientsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -770,11 +776,11 @@ class ServiceClientsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -794,7 +800,7 @@ class ServiceClientsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -811,7 +817,7 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier for the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \AuthressSdk\Model\Client
      */
     public function getClient($client_id)
@@ -828,7 +834,7 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier for the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Client, HTTP status code, HTTP response headers (array of strings)
      */
     public function getClientWithHttpInfo($client_id)
@@ -881,15 +887,13 @@ class ServiceClientsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Client',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Client',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -902,8 +906,8 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getClientAsync($client_id)
     {
@@ -922,8 +926,8 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getClientAsyncWithHttpInfo($client_id)
     {
@@ -972,14 +976,14 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getClientRequest($client_id)
     {
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $client_id when calling getClient'
             );
         }
@@ -1020,8 +1024,8 @@ class ServiceClientsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1036,11 +1040,11 @@ class ServiceClientsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1060,7 +1064,7 @@ class ServiceClientsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1076,8 +1080,8 @@ class ServiceClientsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\ClientCollection
+     * @throws InvalidArgumentException
+     * @return ClientCollection
      */
     public function getClients()
     {
@@ -1092,7 +1096,7 @@ class ServiceClientsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\ClientCollection, HTTP status code, HTTP response headers (array of strings)
      */
     public function getClientsWithHttpInfo()
@@ -1145,15 +1149,13 @@ class ServiceClientsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\ClientCollection',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\ClientCollection',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -1165,8 +1167,8 @@ class ServiceClientsApi
      * Get clients collection.
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getClientsAsync()
     {
@@ -1184,8 +1186,8 @@ class ServiceClientsApi
      * Get clients collection.
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getClientsAsyncWithHttpInfo()
     {
@@ -1233,7 +1235,7 @@ class ServiceClientsApi
      * Create request for operation 'getClients'
      *
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getClientsRequest()
@@ -1267,8 +1269,8 @@ class ServiceClientsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1283,11 +1285,11 @@ class ServiceClientsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1307,7 +1309,7 @@ class ServiceClientsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1324,8 +1326,8 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier of the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\ClientAccessKey
+     * @throws InvalidArgumentException
+     * @return ClientAccessKey
      */
     public function requestAccessKey($client_id)
     {
@@ -1341,7 +1343,7 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier of the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\ClientAccessKey, HTTP status code, HTTP response headers (array of strings)
      */
     public function requestAccessKeyWithHttpInfo($client_id)
@@ -1394,15 +1396,13 @@ class ServiceClientsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\ClientAccessKey',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\ClientAccessKey',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -1415,8 +1415,8 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier of the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function requestAccessKeyAsync($client_id)
     {
@@ -1435,8 +1435,8 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier of the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function requestAccessKeyAsyncWithHttpInfo($client_id)
     {
@@ -1485,14 +1485,14 @@ class ServiceClientsApi
      *
      * @param  string $client_id The unique identifier of the client. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function requestAccessKeyRequest($client_id)
     {
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $client_id when calling requestAccessKey'
             );
         }
@@ -1533,8 +1533,8 @@ class ServiceClientsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1549,11 +1549,11 @@ class ServiceClientsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1573,7 +1573,7 @@ class ServiceClientsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1591,7 +1591,7 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier for the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \AuthressSdk\Model\Client
      */
     public function updateClient($body, $client_id)
@@ -1609,7 +1609,7 @@ class ServiceClientsApi
      * @param  string $client_id The unique identifier for the client. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Client, HTTP status code, HTTP response headers (array of strings)
      */
     public function updateClientWithHttpInfo($body, $client_id)
@@ -1662,15 +1662,13 @@ class ServiceClientsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Client',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Client',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -1684,8 +1682,8 @@ class ServiceClientsApi
      * @param  \AuthressSdk\Model\Client $body (required)
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateClientAsync($body, $client_id)
     {
@@ -1705,8 +1703,8 @@ class ServiceClientsApi
      * @param  \AuthressSdk\Model\Client $body (required)
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateClientAsyncWithHttpInfo($body, $client_id)
     {
@@ -1756,20 +1754,20 @@ class ServiceClientsApi
      * @param  \AuthressSdk\Model\Client $body (required)
      * @param  string $client_id The unique identifier for the client. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function updateClientRequest($body, $client_id)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling updateClient'
             );
         }
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $client_id when calling updateClient'
             );
         }
@@ -1813,8 +1811,8 @@ class ServiceClientsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1829,11 +1827,11 @@ class ServiceClientsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1853,7 +1851,7 @@ class ServiceClientsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1865,7 +1863,7 @@ class ServiceClientsApi
     /**
      * Create http client option
      *
-     * @throws \RuntimeException on file opening failure
+     * @throws RuntimeException on file opening failure
      * @return array of http client options
      */
     protected function createHttpClientOption()
@@ -1874,7 +1872,7 @@ class ServiceClientsApi
         if ($this->config->getDebug()) {
             $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
             if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
             }
         }
 

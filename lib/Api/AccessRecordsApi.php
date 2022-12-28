@@ -11,16 +11,27 @@
 
 namespace AuthressSdk\Api;
 
+use AuthressSdk\Model\AccessRecord;
+use AuthressSdk\Model\AccessRecordCollection;
+use AuthressSdk\Model\Account;
+use AuthressSdk\Model\ClientClaimRequest;
+use AuthressSdk\Model\Invite;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use AuthressSdk\ApiException;
 use AuthressSdk\AuthressClient;
 use AuthressSdk\HeaderSelector;
 use AuthressSdk\ObjectSerializer;
+use GuzzleHttp\Utils;
+use InvalidArgumentException;
+use RuntimeException;
+use stdClass;
 
 /**
  * AccessRecordsApi Class Doc Comment
@@ -70,10 +81,10 @@ class AccessRecordsApi
      *
      * Claim a resource by an allowed user.
      *
-     * @param  \AuthressSdk\Model\ClientClaimRequest $body body (required)
+     * @param  ClientClaimRequest $body body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return object
      */
     public function createClaim($body)
@@ -87,10 +98,10 @@ class AccessRecordsApi
      *
      * Claim a resource by an allowed user.
      *
-     * @param  \AuthressSdk\Model\ClientClaimRequest $body (required)
+     * @param  ClientClaimRequest $body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of object, HTTP status code, HTTP response headers (array of strings)
      */
     public function createClaimWithHttpInfo($body)
@@ -143,15 +154,13 @@ class AccessRecordsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        'object',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    'object',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -162,10 +171,10 @@ class AccessRecordsApi
      *
      * Claim a resource by an allowed user.
      *
-     * @param  \AuthressSdk\Model\ClientClaimRequest $body (required)
+     * @param  ClientClaimRequest $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createClaimAsync($body)
     {
@@ -182,10 +191,10 @@ class AccessRecordsApi
      *
      * Claim a resource by an allowed user.
      *
-     * @param  \AuthressSdk\Model\ClientClaimRequest $body (required)
+     * @param  ClientClaimRequest $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createClaimAsyncWithHttpInfo($body)
     {
@@ -232,16 +241,16 @@ class AccessRecordsApi
     /**
      * Create request for operation 'createClaim'
      *
-     * @param  \AuthressSdk\Model\ClientClaimRequest $body (required)
+     * @param  ClientClaimRequest $body (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function createClaimRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling createClaim'
             );
         }
@@ -277,8 +286,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -293,11 +302,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -317,7 +326,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -331,10 +340,10 @@ class AccessRecordsApi
      *
      * Create a new invite.
      *
-     * @param  \AuthressSdk\Model\Invite $body body (required)
+     * @param  Invite $body body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function createInvite($body)
@@ -347,10 +356,10 @@ class AccessRecordsApi
      *
      * Create a new invite.
      *
-     * @param  \AuthressSdk\Model\Invite $body (required)
+     * @param  Invite $body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function createInviteWithHttpInfo($body)
@@ -400,10 +409,10 @@ class AccessRecordsApi
      *
      * Create a new invite.
      *
-     * @param  \AuthressSdk\Model\Invite $body (required)
+     * @param  Invite $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createInviteAsync($body)
     {
@@ -420,10 +429,10 @@ class AccessRecordsApi
      *
      * Create a new invite.
      *
-     * @param  \AuthressSdk\Model\Invite $body (required)
+     * @param  Invite $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createInviteAsyncWithHttpInfo($body)
     {
@@ -456,16 +465,16 @@ class AccessRecordsApi
     /**
      * Create request for operation 'createInvite'
      *
-     * @param  \AuthressSdk\Model\Invite $body (required)
+     * @param  Invite $body (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function createInviteRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling createInvite'
             );
         }
@@ -501,8 +510,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -517,11 +526,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -541,7 +550,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -555,11 +564,11 @@ class AccessRecordsApi
      *
      * Create a new access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body body (required)
+     * @param  AccessRecord $body body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\AccessRecord
+     * @throws InvalidArgumentException
+     * @return AccessRecord
      */
     public function createRecord($body)
     {
@@ -572,10 +581,10 @@ class AccessRecordsApi
      *
      * Create a new access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecord, HTTP status code, HTTP response headers (array of strings)
      */
     public function createRecordWithHttpInfo($body)
@@ -628,15 +637,13 @@ class AccessRecordsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\AccessRecord',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\AccessRecord',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -647,10 +654,10 @@ class AccessRecordsApi
      *
      * Create a new access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createRecordAsync($body)
     {
@@ -667,10 +674,10 @@ class AccessRecordsApi
      *
      * Create a new access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createRecordAsyncWithHttpInfo($body)
     {
@@ -717,16 +724,16 @@ class AccessRecordsApi
     /**
      * Create request for operation 'createRecord'
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function createRecordRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling createRecord'
             );
         }
@@ -762,8 +769,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -778,11 +785,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -802,7 +809,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -819,7 +826,7 @@ class AccessRecordsApi
      * @param  string $invite_id The identifier of the invite. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function deleteInvite($invite_id)
@@ -835,7 +842,7 @@ class AccessRecordsApi
      * @param  string $invite_id The identifier of the invite. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function deleteInviteWithHttpInfo($invite_id)
@@ -887,8 +894,8 @@ class AccessRecordsApi
      *
      * @param  string $invite_id The identifier of the invite. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteInviteAsync($invite_id)
     {
@@ -907,8 +914,8 @@ class AccessRecordsApi
      *
      * @param  string $invite_id The identifier of the invite. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteInviteAsyncWithHttpInfo($invite_id)
     {
@@ -943,14 +950,14 @@ class AccessRecordsApi
      *
      * @param  string $invite_id The identifier of the invite. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function deleteInviteRequest($invite_id)
     {
         // verify the required parameter 'invite_id' is set
         if ($invite_id === null || (is_array($invite_id) && count($invite_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $invite_id when calling deleteInvite'
             );
         }
@@ -991,8 +998,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1007,11 +1014,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1031,7 +1038,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1048,7 +1055,7 @@ class AccessRecordsApi
      * @param  string $record_id The identifier of the access record. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function deleteRecord($record_id)
@@ -1064,7 +1071,7 @@ class AccessRecordsApi
      * @param  string $record_id The identifier of the access record. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function deleteRecordWithHttpInfo($record_id)
@@ -1116,8 +1123,8 @@ class AccessRecordsApi
      *
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteRecordAsync($record_id)
     {
@@ -1136,8 +1143,8 @@ class AccessRecordsApi
      *
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteRecordAsyncWithHttpInfo($record_id)
     {
@@ -1172,14 +1179,14 @@ class AccessRecordsApi
      *
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function deleteRecordRequest($record_id)
     {
         // verify the required parameter 'record_id' is set
         if ($record_id === null || (is_array($record_id) && count($record_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $record_id when calling deleteRecord'
             );
         }
@@ -1220,8 +1227,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1236,11 +1243,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1260,7 +1267,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1277,8 +1284,8 @@ class AccessRecordsApi
      * @param  string $record_id The identifier of the access record. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\AccessRecord
+     * @throws InvalidArgumentException
+     * @return AccessRecord
      */
     public function getRecord($record_id)
     {
@@ -1294,7 +1301,7 @@ class AccessRecordsApi
      * @param  string $record_id The identifier of the access record. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecord, HTTP status code, HTTP response headers (array of strings)
      */
     public function getRecordWithHttpInfo($record_id)
@@ -1347,15 +1354,13 @@ class AccessRecordsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\AccessRecord',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\AccessRecord',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -1368,8 +1373,8 @@ class AccessRecordsApi
      *
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getRecordAsync($record_id)
     {
@@ -1388,8 +1393,8 @@ class AccessRecordsApi
      *
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getRecordAsyncWithHttpInfo($record_id)
     {
@@ -1438,14 +1443,14 @@ class AccessRecordsApi
      *
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getRecordRequest($record_id)
     {
         // verify the required parameter 'record_id' is set
         if ($record_id === null || (is_array($record_id) && count($record_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $record_id when calling getRecord'
             );
         }
@@ -1486,8 +1491,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1502,11 +1507,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1526,7 +1531,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1546,8 +1551,8 @@ class AccessRecordsApi
      * @param  string $status Filter records by their current status. (optional)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\AccessRecordCollection
+     * @throws InvalidArgumentException
+     * @return AccessRecordCollection
      */
     public function getRecords($limit = '20', $cursor = null, $filter = null, $status = null)
     {
@@ -1566,7 +1571,7 @@ class AccessRecordsApi
      * @param  string $status Filter records by their current status. (optional)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecordCollection, HTTP status code, HTTP response headers (array of strings)
      */
     public function getRecordsWithHttpInfo($limit = '20', $cursor = null, $filter = null, $status = null)
@@ -1619,15 +1624,13 @@ class AccessRecordsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\AccessRecordCollection',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\AccessRecordCollection',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -1643,8 +1646,8 @@ class AccessRecordsApi
      * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
      * @param  string $status Filter records by their current status. (optional)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getRecordsAsync($limit = '20', $cursor = null, $filter = null, $status = null)
     {
@@ -1666,8 +1669,8 @@ class AccessRecordsApi
      * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
      * @param  string $status Filter records by their current status. (optional)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getRecordsAsyncWithHttpInfo($limit = '20', $cursor = null, $filter = null, $status = null)
     {
@@ -1719,7 +1722,7 @@ class AccessRecordsApi
      * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
      * @param  string $status Filter records by their current status. (optional)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getRecordsRequest($limit = '20', $cursor = null, $filter = null, $status = null)
@@ -1769,8 +1772,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1785,11 +1788,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1809,7 +1812,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1826,8 +1829,8 @@ class AccessRecordsApi
      * @param  string $invite_id The identifier of the invite. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Account
+     * @throws InvalidArgumentException
+     * @return Account
      */
     public function respondToInvite($invite_id)
     {
@@ -1843,7 +1846,7 @@ class AccessRecordsApi
      * @param  string $invite_id The identifier of the invite. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Account, HTTP status code, HTTP response headers (array of strings)
      */
     public function respondToInviteWithHttpInfo($invite_id)
@@ -1896,15 +1899,13 @@ class AccessRecordsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Account',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Account',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -1917,8 +1918,8 @@ class AccessRecordsApi
      *
      * @param  string $invite_id The identifier of the invite. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function respondToInviteAsync($invite_id)
     {
@@ -1937,8 +1938,8 @@ class AccessRecordsApi
      *
      * @param  string $invite_id The identifier of the invite. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function respondToInviteAsyncWithHttpInfo($invite_id)
     {
@@ -1987,14 +1988,14 @@ class AccessRecordsApi
      *
      * @param  string $invite_id The identifier of the invite. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function respondToInviteRequest($invite_id)
     {
         // verify the required parameter 'invite_id' is set
         if ($invite_id === null || (is_array($invite_id) && count($invite_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $invite_id when calling respondToInvite'
             );
         }
@@ -2035,8 +2036,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -2051,11 +2052,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -2075,7 +2076,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'PATCH',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -2089,12 +2090,12 @@ class AccessRecordsApi
      *
      * Update an access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body body (required)
+     * @param  AccessRecord $body body (required)
      * @param  string $record_id The identifier of the access record. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\AccessRecord
+     * @throws InvalidArgumentException
+     * @return AccessRecord
      */
     public function updateRecord($body, $record_id)
     {
@@ -2107,11 +2108,11 @@ class AccessRecordsApi
      *
      * Update an access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      * @param  string $record_id The identifier of the access record. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecord, HTTP status code, HTTP response headers (array of strings)
      */
     public function updateRecordWithHttpInfo($body, $record_id)
@@ -2164,15 +2165,13 @@ class AccessRecordsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\AccessRecord',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\AccessRecord',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -2183,11 +2182,11 @@ class AccessRecordsApi
      *
      * Update an access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateRecordAsync($body, $record_id)
     {
@@ -2204,11 +2203,11 @@ class AccessRecordsApi
      *
      * Update an access record.
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateRecordAsyncWithHttpInfo($body, $record_id)
     {
@@ -2255,23 +2254,23 @@ class AccessRecordsApi
     /**
      * Create request for operation 'updateRecord'
      *
-     * @param  \AuthressSdk\Model\AccessRecord $body (required)
+     * @param  AccessRecord $body (required)
      * @param  string $record_id The identifier of the access record. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function updateRecordRequest($body, $record_id)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling updateRecord'
             );
         }
         // verify the required parameter 'record_id' is set
         if ($record_id === null || (is_array($record_id) && count($record_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $record_id when calling updateRecord'
             );
         }
@@ -2315,8 +2314,8 @@ class AccessRecordsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -2331,11 +2330,11 @@ class AccessRecordsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -2355,7 +2354,7 @@ class AccessRecordsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -2367,7 +2366,7 @@ class AccessRecordsApi
     /**
      * Create http client option
      *
-     * @throws \RuntimeException on file opening failure
+     * @throws RuntimeException on file opening failure
      * @return array of http client options
      */
     protected function createHttpClientOption()
@@ -2376,7 +2375,7 @@ class AccessRecordsApi
         if ($this->config->getDebug()) {
             $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
             if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
             }
         }
 

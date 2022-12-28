@@ -131,19 +131,19 @@ class UserResourcesResources implements ModelInterface, ArrayAccess
     /**
      * Associative array for storing property values
      *
-     * @var mixed[]
+     * @var array
      */
     protected $container = [];
 
     /**
      * Constructor
      *
-     * @param mixed[] $data Associated array of property values
+     * @param array $data Associated array of property values
      *                      initializing the model
      */
     public function __construct(array $data = null)
     {
-        $this->container['resource_uri'] = isset($data['resource_uri']) ? $data['resource_uri'] : null;
+        $this->container['resource_uri'] = $data['resource_uri'] ?? null;
     }
 
     /**
@@ -214,7 +214,7 @@ class UserResourcesResources implements ModelInterface, ArrayAccess
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**

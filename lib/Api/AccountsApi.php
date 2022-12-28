@@ -11,16 +11,26 @@
 
 namespace AuthressSdk\Api;
 
+use AuthressSdk\Model\Account;
+use AuthressSdk\Model\AccountCollection;
+use AuthressSdk\Model\IdentityCollection;
+use AuthressSdk\Model\IdentityRequest;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use AuthressSdk\ApiException;
 use AuthressSdk\AuthressClient;
 use AuthressSdk\HeaderSelector;
 use AuthressSdk\ObjectSerializer;
+use GuzzleHttp\Utils;
+use InvalidArgumentException;
+use RuntimeException;
+use stdClass;
 
 /**
  * AccountsApi Class Doc Comment
@@ -73,8 +83,8 @@ class AccountsApi
      * @param  string $account_id The unique identifier for the account (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Account
+     * @throws InvalidArgumentException
+     * @return Account
      */
     public function getAccount($account_id)
     {
@@ -90,7 +100,7 @@ class AccountsApi
      * @param  string $account_id The unique identifier for the account (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Account, HTTP status code, HTTP response headers (array of strings)
      */
     public function getAccountWithHttpInfo($account_id)
@@ -143,15 +153,13 @@ class AccountsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Account',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Account',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -164,8 +172,8 @@ class AccountsApi
      *
      * @param  string $account_id The unique identifier for the account (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getAccountAsync($account_id)
     {
@@ -184,8 +192,8 @@ class AccountsApi
      *
      * @param  string $account_id The unique identifier for the account (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getAccountAsyncWithHttpInfo($account_id)
     {
@@ -234,14 +242,14 @@ class AccountsApi
      *
      * @param  string $account_id The unique identifier for the account (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getAccountRequest($account_id)
     {
         // verify the required parameter 'account_id' is set
         if ($account_id === null || (is_array($account_id) && count($account_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $account_id when calling getAccount'
             );
         }
@@ -282,8 +290,8 @@ class AccountsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -298,11 +306,11 @@ class AccountsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -322,7 +330,7 @@ class AccountsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -338,8 +346,8 @@ class AccountsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\IdentityCollection
+     * @throws InvalidArgumentException
+     * @return IdentityCollection
      */
     public function getAccountIdentities()
     {
@@ -354,7 +362,7 @@ class AccountsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\IdentityCollection, HTTP status code, HTTP response headers (array of strings)
      */
     public function getAccountIdentitiesWithHttpInfo()
@@ -407,15 +415,13 @@ class AccountsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\IdentityCollection',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\IdentityCollection',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -427,8 +433,8 @@ class AccountsApi
      * Get all linked identities for this account.
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getAccountIdentitiesAsync()
     {
@@ -446,8 +452,8 @@ class AccountsApi
      * Get all linked identities for this account.
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getAccountIdentitiesAsyncWithHttpInfo()
     {
@@ -495,7 +501,7 @@ class AccountsApi
      * Create request for operation 'getAccountIdentities'
      *
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getAccountIdentitiesRequest()
@@ -529,8 +535,8 @@ class AccountsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -545,11 +551,11 @@ class AccountsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -569,7 +575,7 @@ class AccountsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -585,8 +591,8 @@ class AccountsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\AccountCollection
+     * @throws InvalidArgumentException
+     * @return AccountCollection
      */
     public function getAccounts()
     {
@@ -601,7 +607,7 @@ class AccountsApi
      *
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccountCollection, HTTP status code, HTTP response headers (array of strings)
      */
     public function getAccountsWithHttpInfo()
@@ -654,15 +660,13 @@ class AccountsApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\AccountCollection',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\AccountCollection',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -674,8 +678,8 @@ class AccountsApi
      * Get all accounts user has access to
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getAccountsAsync()
     {
@@ -693,8 +697,8 @@ class AccountsApi
      * Get all accounts user has access to
      *
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getAccountsAsyncWithHttpInfo()
     {
@@ -742,7 +746,7 @@ class AccountsApi
      * Create request for operation 'getAccounts'
      *
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getAccountsRequest()
@@ -776,8 +780,8 @@ class AccountsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -792,11 +796,11 @@ class AccountsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -816,7 +820,7 @@ class AccountsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -830,10 +834,10 @@ class AccountsApi
      *
      * Link a new account identity.
      *
-     * @param  \AuthressSdk\Model\IdentityRequest $body body (required)
+     * @param  IdentityRequest $body body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function linkIdentity($body)
@@ -846,10 +850,10 @@ class AccountsApi
      *
      * Link a new account identity.
      *
-     * @param  \AuthressSdk\Model\IdentityRequest $body (required)
+     * @param  IdentityRequest $body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function linkIdentityWithHttpInfo($body)
@@ -899,10 +903,10 @@ class AccountsApi
      *
      * Link a new account identity.
      *
-     * @param  \AuthressSdk\Model\IdentityRequest $body (required)
+     * @param  IdentityRequest $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function linkIdentityAsync($body)
     {
@@ -919,10 +923,10 @@ class AccountsApi
      *
      * Link a new account identity.
      *
-     * @param  \AuthressSdk\Model\IdentityRequest $body (required)
+     * @param  IdentityRequest $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function linkIdentityAsyncWithHttpInfo($body)
     {
@@ -955,16 +959,16 @@ class AccountsApi
     /**
      * Create request for operation 'linkIdentity'
      *
-     * @param  \AuthressSdk\Model\IdentityRequest $body (required)
+     * @param  IdentityRequest $body (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function linkIdentityRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling linkIdentity'
             );
         }
@@ -1000,8 +1004,8 @@ class AccountsApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1016,11 +1020,11 @@ class AccountsApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1040,7 +1044,7 @@ class AccountsApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1052,7 +1056,7 @@ class AccountsApi
     /**
      * Create http client option
      *
-     * @throws \RuntimeException on file opening failure
+     * @throws RuntimeException on file opening failure
      * @return array of http client options
      */
     protected function createHttpClientOption()
@@ -1061,7 +1065,7 @@ class AccountsApi
         if ($this->config->getDebug()) {
             $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
             if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
             }
         }
 

@@ -11,16 +11,23 @@
 
 namespace AuthressSdk\Api;
 
+use AuthressSdk\Model\Role;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use AuthressSdk\ApiException;
 use AuthressSdk\AuthressClient;
 use AuthressSdk\HeaderSelector;
 use AuthressSdk\ObjectSerializer;
+use GuzzleHttp\Utils;
+use InvalidArgumentException;
+use RuntimeException;
+use stdClass;
 
 /**
  * RolesApi Class Doc Comment
@@ -70,11 +77,11 @@ class RolesApi
      *
      * Create a role.
      *
-     * @param  \AuthressSdk\Model\Role $body body (required)
+     * @param  Role $body body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Role
+     * @throws InvalidArgumentException
+     * @return Role
      */
     public function createRole($body)
     {
@@ -87,10 +94,10 @@ class RolesApi
      *
      * Create a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Role, HTTP status code, HTTP response headers (array of strings)
      */
     public function createRoleWithHttpInfo($body)
@@ -143,15 +150,13 @@ class RolesApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Role',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Role',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -162,10 +167,10 @@ class RolesApi
      *
      * Create a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createRoleAsync($body)
     {
@@ -182,10 +187,10 @@ class RolesApi
      *
      * Create a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function createRoleAsyncWithHttpInfo($body)
     {
@@ -232,16 +237,16 @@ class RolesApi
     /**
      * Create request for operation 'createRole'
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function createRoleRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling createRole'
             );
         }
@@ -277,8 +282,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -293,11 +298,11 @@ class RolesApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -317,7 +322,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -334,7 +339,7 @@ class RolesApi
      * @param  string $role_id The identifier of the role. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function deleteRole($role_id)
@@ -350,7 +355,7 @@ class RolesApi
      * @param  string $role_id The identifier of the role. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
     public function deleteRoleWithHttpInfo($role_id)
@@ -402,8 +407,8 @@ class RolesApi
      *
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteRoleAsync($role_id)
     {
@@ -422,8 +427,8 @@ class RolesApi
      *
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function deleteRoleAsyncWithHttpInfo($role_id)
     {
@@ -458,14 +463,14 @@ class RolesApi
      *
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function deleteRoleRequest($role_id)
     {
         // verify the required parameter 'role_id' is set
         if ($role_id === null || (is_array($role_id) && count($role_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $role_id when calling deleteRole'
             );
         }
@@ -506,8 +511,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -522,11 +527,11 @@ class RolesApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -546,7 +551,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -563,8 +568,8 @@ class RolesApi
      * @param  string $role_id The identifier of the role. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Role
+     * @throws InvalidArgumentException
+     * @return Role
      */
     public function getRole($role_id)
     {
@@ -580,7 +585,7 @@ class RolesApi
      * @param  string $role_id The identifier of the role. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Role, HTTP status code, HTTP response headers (array of strings)
      */
     public function getRoleWithHttpInfo($role_id)
@@ -633,15 +638,13 @@ class RolesApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Role',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Role',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -654,8 +657,8 @@ class RolesApi
      *
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getRoleAsync($role_id)
     {
@@ -674,8 +677,8 @@ class RolesApi
      *
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function getRoleAsyncWithHttpInfo($role_id)
     {
@@ -724,14 +727,14 @@ class RolesApi
      *
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getRoleRequest($role_id)
     {
         // verify the required parameter 'role_id' is set
         if ($role_id === null || (is_array($role_id) && count($role_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $role_id when calling getRole'
             );
         }
@@ -772,8 +775,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -788,11 +791,11 @@ class RolesApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -812,7 +815,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -826,12 +829,12 @@ class RolesApi
      *
      * Update a role.
      *
-     * @param  \AuthressSdk\Model\Role $body body (required)
+     * @param  Role $body body (required)
      * @param  string $role_id The identifier of the role. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Role
+     * @throws InvalidArgumentException
+     * @return Role
      */
     public function updateRole($body, $role_id)
     {
@@ -844,11 +847,11 @@ class RolesApi
      *
      * Update a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      * @param  string $role_id The identifier of the role. (required)
      *
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Role, HTTP status code, HTTP response headers (array of strings)
      */
     public function updateRoleWithHttpInfo($body, $role_id)
@@ -901,15 +904,13 @@ class RolesApi
             ];
 
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Role',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Role',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
@@ -920,11 +921,11 @@ class RolesApi
      *
      * Update a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateRoleAsync($body, $role_id)
     {
@@ -941,11 +942,11 @@ class RolesApi
      *
      * Update a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @throws InvalidArgumentException
+     * @return PromiseInterface
      */
     public function updateRoleAsyncWithHttpInfo($body, $role_id)
     {
@@ -992,23 +993,23 @@ class RolesApi
     /**
      * Create request for operation 'updateRole'
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param  Role $body (required)
      * @param  string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function updateRoleRequest($body, $role_id)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling updateRole'
             );
         }
         // verify the required parameter 'role_id' is set
         if ($role_id === null || (is_array($role_id) && count($role_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $role_id when calling updateRole'
             );
         }
@@ -1052,8 +1053,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1068,11 +1069,11 @@ class RolesApi
                 $httpBody = new MultipartStream($multipartContents);
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = Utils::jsonEncode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
@@ -1092,7 +1093,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1104,7 +1105,7 @@ class RolesApi
     /**
      * Create http client option
      *
-     * @throws \RuntimeException on file opening failure
+     * @throws RuntimeException on file opening failure
      * @return array of http client options
      */
     protected function createHttpClientOption()
@@ -1113,7 +1114,7 @@ class RolesApi
         if ($this->config->getDebug()) {
             $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
             if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
             }
         }
 
