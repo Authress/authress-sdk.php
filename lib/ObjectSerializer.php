@@ -257,10 +257,10 @@ class ObjectSerializer
         } elseif ($class === '\SplFileObject') {
             /** @var StreamInterface $data */
 
+            $tempFolderPath = sys_get_temp_dir();
             // determine file name
             if (array_key_exists('Content-Disposition', $httpHeaders) &&
                 preg_match('/inline; filename=[\'"]?([^\'"\s]+)[\'"]?$/i', $httpHeaders['Content-Disposition'], $match)) {
-                $tempFolderPath = sys_get_temp_dir();
                 $filename = $tempFolderPath . DIRECTORY_SEPARATOR . self::sanitizeFilename($match[1]);
             } else {
                 $filename = tempnam($tempFolderPath, '');

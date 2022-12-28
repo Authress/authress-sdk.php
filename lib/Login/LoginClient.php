@@ -103,10 +103,11 @@ class LoginClient
 
     /**
      * unlinkIdentity
-     * 
+     *
      * Unlink an identity from the user's account. Throws an error if identity cannot be unlinked.
-     * @param  string Specify the provider connection id that user would like to unlink - see https://authress.io/app/#/manage?focus=connections (required)
+     * @param string Specify the provider connection id that user would like to unlink - see https://authress.io/app/#/manage?focus=connections (required)
      * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException
      */
     public function unlinkIdentity(string $connectionId)
     {
@@ -134,9 +135,8 @@ class LoginClient
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
-                        $statusCode,
-                        $request->getUri()
+                        '[%d] Error connecting to the API',
+                        $statusCode
                     ),
                     $statusCode,
                     $response->getHeaders(),
@@ -201,9 +201,8 @@ class LoginClient
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
-                        $statusCode,
-                        $request->getUri()
+                        '[%d] Error connecting to the API',
+                        $statusCode
                     ),
                     $statusCode,
                     $response->getHeaders(),
@@ -272,9 +271,8 @@ class LoginClient
             if ($statusCode < 200 || $statusCode > 299) {
                 throw new ApiException(
                     sprintf(
-                        '[%d] Error connecting to the API (%s)',
-                        $statusCode,
-                        $request->getUri()
+                        '[%d] Error connecting to the API',
+                        $statusCode
                     ),
                     $statusCode,
                     $response->getHeaders(),
