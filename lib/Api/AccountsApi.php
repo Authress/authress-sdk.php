@@ -1,20 +1,24 @@
 <?php
 /**
  * AccountsApi
-
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Api;
 
+use AuthressSdk\ApiException;
+use AuthressSdk\AuthressClient;
+use AuthressSdk\HeaderSelector;
 use AuthressSdk\Model\Account;
 use AuthressSdk\Model\AccountCollection;
 use AuthressSdk\Model\IdentityCollection;
 use AuthressSdk\Model\IdentityRequest;
+use AuthressSdk\ObjectSerializer;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -23,10 +27,6 @@ use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
-use AuthressSdk\ApiException;
-use AuthressSdk\AuthressClient;
-use AuthressSdk\HeaderSelector;
-use AuthressSdk\ObjectSerializer;
 use GuzzleHttp\Utils;
 use InvalidArgumentException;
 use RuntimeException;
@@ -36,8 +36,9 @@ use stdClass;
  * AccountsApi Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class AccountsApi
@@ -58,12 +59,12 @@ class AccountsApi
     protected $headerSelector;
 
     /**
-     * @param AuthressClient   $config
-     * @param HeaderSelector  $selector
+     * @param HeaderSelector $selector
      */
-    public function __construct(AuthressClient $config = null, HeaderSelector $selector = null) {
+    public function __construct(AuthressClient $config, HeaderSelector $selector = null)
+    {
         $this->client = new Client();
-        $this->config = $config ?: new AuthressClient();
+        $this->config = $config;
         $this->headerSelector = $selector ?: new HeaderSelector();
     }
 
@@ -80,15 +81,16 @@ class AccountsApi
      *
      * Get account information.
      *
-     * @param  string $account_id The unique identifier for the account (required)
+     * @param string $account_id The unique identifier for the account (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return Account
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getAccount($account_id)
     {
-        list($response) = $this->getAccountWithHttpInfo($account_id);
+        [$response] = $this->getAccountWithHttpInfo($account_id);
         return $response;
     }
 
@@ -97,11 +99,12 @@ class AccountsApi
      *
      * Get account information.
      *
-     * @param  string $account_id The unique identifier for the account (required)
+     * @param string $account_id The unique identifier for the account (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Account, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getAccountWithHttpInfo($account_id)
     {
@@ -141,7 +144,7 @@ class AccountsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -151,7 +154,6 @@ class AccountsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -166,84 +168,13 @@ class AccountsApi
     }
 
     /**
-     * Operation getAccountAsync
-     *
-     * Get account information.
-     *
-     * @param  string $account_id The unique identifier for the account (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getAccountAsync($account_id)
-    {
-        return $this->getAccountAsyncWithHttpInfo($account_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation getAccountAsyncWithHttpInfo
-     *
-     * Get account information.
-     *
-     * @param  string $account_id The unique identifier for the account (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getAccountAsyncWithHttpInfo($account_id)
-    {
-        $returnType = '\AuthressSdk\Model\Account';
-        $request = $this->getAccountRequest($account_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'getAccount'
      *
-     * @param  string $account_id The unique identifier for the account (required)
+     * @param string $account_id The unique identifier for the account (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function getAccountRequest($account_id)
     {
@@ -260,7 +191,6 @@ class AccountsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($account_id !== null) {
@@ -304,20 +234,18 @@ class AccountsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -340,18 +268,112 @@ class AccountsApi
     }
 
     /**
+     * Create http client option
+     *
+     * @return array of http client options
+     *
+     * @throws RuntimeException on file opening failure
+     */
+    protected function createHttpClientOption()
+    {
+        $options = [];
+        if ($this->config->getDebug()) {
+            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
+            if (!$options[RequestOptions::DEBUG]) {
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Operation getAccountAsync
+     *
+     * Get account information.
+     *
+     * @param string $account_id The unique identifier for the account (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getAccountAsync($account_id)
+    {
+        return $this->getAccountAsyncWithHttpInfo($account_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getAccountAsyncWithHttpInfo
+     *
+     * Get account information.
+     *
+     * @param string $account_id The unique identifier for the account (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getAccountAsyncWithHttpInfo($account_id)
+    {
+        $returnType = '\AuthressSdk\Model\Account';
+        $request = $this->getAccountRequest($account_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation getAccountIdentities
      *
      * Get all linked identities for this account.
      *
-     *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return IdentityCollection
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getAccountIdentities()
     {
-        list($response) = $this->getAccountIdentitiesWithHttpInfo();
+        [$response] = $this->getAccountIdentitiesWithHttpInfo();
         return $response;
     }
 
@@ -360,10 +382,10 @@ class AccountsApi
      *
      * Get all linked identities for this account.
      *
-     *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\IdentityCollection, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getAccountIdentitiesWithHttpInfo()
     {
@@ -403,7 +425,7 @@ class AccountsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -413,7 +435,6 @@ class AccountsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -428,93 +449,20 @@ class AccountsApi
     }
 
     /**
-     * Operation getAccountIdentitiesAsync
-     *
-     * Get all linked identities for this account.
-     *
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getAccountIdentitiesAsync()
-    {
-        return $this->getAccountIdentitiesAsyncWithHttpInfo()
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation getAccountIdentitiesAsyncWithHttpInfo
-     *
-     * Get all linked identities for this account.
-     *
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getAccountIdentitiesAsyncWithHttpInfo()
-    {
-        $returnType = '\AuthressSdk\Model\IdentityCollection';
-        $request = $this->getAccountIdentitiesRequest();
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'getAccountIdentities'
      *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function getAccountIdentitiesRequest()
     {
-
         $resourcePath = '/v1/identities';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
-
 
         // body params
         $_tempBody = null;
@@ -549,20 +497,18 @@ class AccountsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -585,18 +531,88 @@ class AccountsApi
     }
 
     /**
+     * Operation getAccountIdentitiesAsync
+     *
+     * Get all linked identities for this account.
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getAccountIdentitiesAsync()
+    {
+        return $this->getAccountIdentitiesAsyncWithHttpInfo()
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getAccountIdentitiesAsyncWithHttpInfo
+     *
+     * Get all linked identities for this account.
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getAccountIdentitiesAsyncWithHttpInfo()
+    {
+        $returnType = '\AuthressSdk\Model\IdentityCollection';
+        $request = $this->getAccountIdentitiesRequest();
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation getAccounts
      *
      * Get all accounts user has access to
      *
-     *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return AccountCollection
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getAccounts()
     {
-        list($response) = $this->getAccountsWithHttpInfo();
+        [$response] = $this->getAccountsWithHttpInfo();
         return $response;
     }
 
@@ -605,10 +621,10 @@ class AccountsApi
      *
      * Get all accounts user has access to
      *
-     *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccountCollection, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getAccountsWithHttpInfo()
     {
@@ -648,7 +664,7 @@ class AccountsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -658,7 +674,6 @@ class AccountsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -673,93 +688,20 @@ class AccountsApi
     }
 
     /**
-     * Operation getAccountsAsync
-     *
-     * Get all accounts user has access to
-     *
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getAccountsAsync()
-    {
-        return $this->getAccountsAsyncWithHttpInfo()
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation getAccountsAsyncWithHttpInfo
-     *
-     * Get all accounts user has access to
-     *
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getAccountsAsyncWithHttpInfo()
-    {
-        $returnType = '\AuthressSdk\Model\AccountCollection';
-        $request = $this->getAccountsRequest();
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'getAccounts'
      *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function getAccountsRequest()
     {
-
         $resourcePath = '/v1/accounts';
         $formParams = [];
         $queryParams = [];
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
-
 
         // body params
         $_tempBody = null;
@@ -794,20 +736,18 @@ class AccountsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -830,15 +770,86 @@ class AccountsApi
     }
 
     /**
+     * Operation getAccountsAsync
+     *
+     * Get all accounts user has access to
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getAccountsAsync()
+    {
+        return $this->getAccountsAsyncWithHttpInfo()
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getAccountsAsyncWithHttpInfo
+     *
+     * Get all accounts user has access to
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getAccountsAsyncWithHttpInfo()
+    {
+        $returnType = '\AuthressSdk\Model\AccountCollection';
+        $request = $this->getAccountsRequest();
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation linkIdentity
      *
      * Link a new account identity.
      *
-     * @param  IdentityRequest $body body (required)
+     * @param IdentityRequest $body body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return void
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function linkIdentity($body)
     {
@@ -850,11 +861,12 @@ class AccountsApi
      *
      * Link a new account identity.
      *
-     * @param  IdentityRequest $body (required)
+     * @param IdentityRequest $body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function linkIdentityWithHttpInfo($body)
     {
@@ -890,79 +902,19 @@ class AccountsApi
             }
 
             return [null, $statusCode, $response->getHeaders()];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-            }
             throw $e;
         }
     }
 
     /**
-     * Operation linkIdentityAsync
-     *
-     * Link a new account identity.
-     *
-     * @param  IdentityRequest $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function linkIdentityAsync($body)
-    {
-        return $this->linkIdentityAsyncWithHttpInfo($body)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation linkIdentityAsyncWithHttpInfo
-     *
-     * Link a new account identity.
-     *
-     * @param  IdentityRequest $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function linkIdentityAsyncWithHttpInfo($body)
-    {
-        $returnType = '';
-        $request = $this->linkIdentityRequest($body);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    return [null, $response->getStatusCode(), $response->getHeaders()];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'linkIdentity'
      *
-     * @param  IdentityRequest $body (required)
+     * @param IdentityRequest $body (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function linkIdentityRequest($body)
     {
@@ -979,8 +931,6 @@ class AccountsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
-
 
         // body params
         $_tempBody = null;
@@ -1018,20 +968,18 @@ class AccountsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -1054,21 +1002,62 @@ class AccountsApi
     }
 
     /**
-     * Create http client option
+     * Operation linkIdentityAsync
      *
-     * @throws RuntimeException on file opening failure
-     * @return array of http client options
+     * Link a new account identity.
+     *
+     * @param IdentityRequest $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
      */
-    protected function createHttpClientOption()
+    public function linkIdentityAsync($body)
     {
-        $options = [];
-        if ($this->config->getDebug()) {
-            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
-            if (!$options[RequestOptions::DEBUG]) {
-                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
-            }
-        }
+        return $this->linkIdentityAsyncWithHttpInfo($body)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
 
-        return $options;
+    /**
+     * Operation linkIdentityAsyncWithHttpInfo
+     *
+     * Link a new account identity.
+     *
+     * @param IdentityRequest $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function linkIdentityAsyncWithHttpInfo($body)
+    {
+        $returnType = '';
+        $request = $this->linkIdentityRequest($body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
     }
 }

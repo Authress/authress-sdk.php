@@ -1,21 +1,25 @@
 <?php
 /**
  * AccessRecordsApi
-
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Api;
 
+use AuthressSdk\ApiException;
+use AuthressSdk\AuthressClient;
+use AuthressSdk\HeaderSelector;
 use AuthressSdk\Model\AccessRecord;
 use AuthressSdk\Model\AccessRecordCollection;
 use AuthressSdk\Model\Account;
 use AuthressSdk\Model\ClientClaimRequest;
 use AuthressSdk\Model\Invite;
+use AuthressSdk\ObjectSerializer;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -24,10 +28,6 @@ use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
-use AuthressSdk\ApiException;
-use AuthressSdk\AuthressClient;
-use AuthressSdk\HeaderSelector;
-use AuthressSdk\ObjectSerializer;
 use GuzzleHttp\Utils;
 use InvalidArgumentException;
 use RuntimeException;
@@ -37,8 +37,9 @@ use stdClass;
  * AccessRecordsApi Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class AccessRecordsApi
@@ -59,12 +60,12 @@ class AccessRecordsApi
     protected $headerSelector;
 
     /**
-     * @param AuthressClient   $config
-     * @param HeaderSelector  $selector
+     * @param HeaderSelector $selector
      */
-    public function __construct(AuthressClient $config = null, HeaderSelector $selector = null) {
+    public function __construct(AuthressClient $config, HeaderSelector $selector = null)
+    {
         $this->client = new Client();
-        $this->config = $config ?: new AuthressClient();
+        $this->config = $config;
         $this->headerSelector = $selector ?: new HeaderSelector();
     }
 
@@ -81,15 +82,16 @@ class AccessRecordsApi
      *
      * Claim a resource by an allowed user.
      *
-     * @param  ClientClaimRequest $body body (required)
+     * @param ClientClaimRequest $body body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return object
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function createClaim($body)
     {
-        list($response) = $this->createClaimWithHttpInfo($body);
+        [$response] = $this->createClaimWithHttpInfo($body);
         return $response;
     }
 
@@ -98,11 +100,12 @@ class AccessRecordsApi
      *
      * Claim a resource by an allowed user.
      *
-     * @param  ClientClaimRequest $body (required)
+     * @param ClientClaimRequest $body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of object, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function createClaimWithHttpInfo($body)
     {
@@ -142,7 +145,7 @@ class AccessRecordsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -152,7 +155,6 @@ class AccessRecordsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -167,84 +169,13 @@ class AccessRecordsApi
     }
 
     /**
-     * Operation createClaimAsync
-     *
-     * Claim a resource by an allowed user.
-     *
-     * @param  ClientClaimRequest $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function createClaimAsync($body)
-    {
-        return $this->createClaimAsyncWithHttpInfo($body)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation createClaimAsyncWithHttpInfo
-     *
-     * Claim a resource by an allowed user.
-     *
-     * @param  ClientClaimRequest $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function createClaimAsyncWithHttpInfo($body)
-    {
-        $returnType = 'object';
-        $request = $this->createClaimRequest($body);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'createClaim'
      *
-     * @param  ClientClaimRequest $body (required)
+     * @param ClientClaimRequest $body (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function createClaimRequest($body)
     {
@@ -261,8 +192,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
-
 
         // body params
         $_tempBody = null;
@@ -300,10 +229,8 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
@@ -336,15 +263,110 @@ class AccessRecordsApi
     }
 
     /**
+     * Create http client option
+     *
+     * @return array of http client options
+     *
+     * @throws RuntimeException on file opening failure
+     */
+    protected function createHttpClientOption()
+    {
+        $options = [];
+        if ($this->config->getDebug()) {
+            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
+            if (!$options[RequestOptions::DEBUG]) {
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Operation createClaimAsync
+     *
+     * Claim a resource by an allowed user.
+     *
+     * @param ClientClaimRequest $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createClaimAsync($body)
+    {
+        return $this->createClaimAsyncWithHttpInfo($body)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation createClaimAsyncWithHttpInfo
+     *
+     * Claim a resource by an allowed user.
+     *
+     * @param ClientClaimRequest $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createClaimAsyncWithHttpInfo($body)
+    {
+        $returnType = 'object';
+        $request = $this->createClaimRequest($body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation createInvite
      *
      * Create a new invite.
      *
-     * @param  Invite $body body (required)
+     * @param Invite $body body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return void
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function createInvite($body)
     {
@@ -356,11 +378,12 @@ class AccessRecordsApi
      *
      * Create a new invite.
      *
-     * @param  Invite $body (required)
+     * @param Invite $body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function createInviteWithHttpInfo($body)
     {
@@ -396,79 +419,19 @@ class AccessRecordsApi
             }
 
             return [null, $statusCode, $response->getHeaders()];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-            }
             throw $e;
         }
     }
 
     /**
-     * Operation createInviteAsync
-     *
-     * Create a new invite.
-     *
-     * @param  Invite $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function createInviteAsync($body)
-    {
-        return $this->createInviteAsyncWithHttpInfo($body)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation createInviteAsyncWithHttpInfo
-     *
-     * Create a new invite.
-     *
-     * @param  Invite $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function createInviteAsyncWithHttpInfo($body)
-    {
-        $returnType = '';
-        $request = $this->createInviteRequest($body);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    return [null, $response->getStatusCode(), $response->getHeaders()];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'createInvite'
      *
-     * @param  Invite $body (required)
+     * @param Invite $body (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function createInviteRequest($body)
     {
@@ -485,8 +448,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
-
 
         // body params
         $_tempBody = null;
@@ -524,20 +485,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -560,19 +519,80 @@ class AccessRecordsApi
     }
 
     /**
+     * Operation createInviteAsync
+     *
+     * Create a new invite.
+     *
+     * @param Invite $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createInviteAsync($body)
+    {
+        return $this->createInviteAsyncWithHttpInfo($body)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation createInviteAsyncWithHttpInfo
+     *
+     * Create a new invite.
+     *
+     * @param Invite $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createInviteAsyncWithHttpInfo($body)
+    {
+        $returnType = '';
+        $request = $this->createInviteRequest($body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation createRecord
      *
      * Create a new access record.
      *
-     * @param  AccessRecord $body body (required)
+     * @param AccessRecord $body body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return AccessRecord
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function createRecord($body)
     {
-        list($response) = $this->createRecordWithHttpInfo($body);
+        [$response] = $this->createRecordWithHttpInfo($body);
         return $response;
     }
 
@@ -581,11 +601,12 @@ class AccessRecordsApi
      *
      * Create a new access record.
      *
-     * @param  AccessRecord $body (required)
+     * @param AccessRecord $body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecord, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function createRecordWithHttpInfo($body)
     {
@@ -625,7 +646,7 @@ class AccessRecordsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -635,7 +656,6 @@ class AccessRecordsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -650,84 +670,13 @@ class AccessRecordsApi
     }
 
     /**
-     * Operation createRecordAsync
-     *
-     * Create a new access record.
-     *
-     * @param  AccessRecord $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function createRecordAsync($body)
-    {
-        return $this->createRecordAsyncWithHttpInfo($body)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation createRecordAsyncWithHttpInfo
-     *
-     * Create a new access record.
-     *
-     * @param  AccessRecord $body (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function createRecordAsyncWithHttpInfo($body)
-    {
-        $returnType = '\AuthressSdk\Model\AccessRecord';
-        $request = $this->createRecordRequest($body);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'createRecord'
      *
-     * @param  AccessRecord $body (required)
+     * @param AccessRecord $body (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function createRecordRequest($body)
     {
@@ -744,8 +693,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
-
 
         // body params
         $_tempBody = null;
@@ -783,20 +730,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -819,15 +764,90 @@ class AccessRecordsApi
     }
 
     /**
+     * Operation createRecordAsync
+     *
+     * Create a new access record.
+     *
+     * @param AccessRecord $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createRecordAsync($body)
+    {
+        return $this->createRecordAsyncWithHttpInfo($body)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation createRecordAsyncWithHttpInfo
+     *
+     * Create a new access record.
+     *
+     * @param AccessRecord $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createRecordAsyncWithHttpInfo($body)
+    {
+        $returnType = '\AuthressSdk\Model\AccessRecord';
+        $request = $this->createRecordRequest($body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation deleteInvite
      *
      * Delete an invite.
      *
-     * @param  string $invite_id The identifier of the invite. (required)
+     * @param string $invite_id The identifier of the invite. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return void
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function deleteInvite($invite_id)
     {
@@ -839,11 +859,12 @@ class AccessRecordsApi
      *
      * Delete an invite.
      *
-     * @param  string $invite_id The identifier of the invite. (required)
+     * @param string $invite_id The identifier of the invite. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function deleteInviteWithHttpInfo($invite_id)
     {
@@ -879,79 +900,19 @@ class AccessRecordsApi
             }
 
             return [null, $statusCode, $response->getHeaders()];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-            }
             throw $e;
         }
     }
 
     /**
-     * Operation deleteInviteAsync
-     *
-     * Delete an invite.
-     *
-     * @param  string $invite_id The identifier of the invite. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function deleteInviteAsync($invite_id)
-    {
-        return $this->deleteInviteAsyncWithHttpInfo($invite_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation deleteInviteAsyncWithHttpInfo
-     *
-     * Delete an invite.
-     *
-     * @param  string $invite_id The identifier of the invite. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function deleteInviteAsyncWithHttpInfo($invite_id)
-    {
-        $returnType = '';
-        $request = $this->deleteInviteRequest($invite_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    return [null, $response->getStatusCode(), $response->getHeaders()];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'deleteInvite'
      *
-     * @param  string $invite_id The identifier of the invite. (required)
+     * @param string $invite_id The identifier of the invite. (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function deleteInviteRequest($invite_id)
     {
@@ -968,7 +929,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($invite_id !== null) {
@@ -1012,20 +972,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -1048,15 +1006,76 @@ class AccessRecordsApi
     }
 
     /**
+     * Operation deleteInviteAsync
+     *
+     * Delete an invite.
+     *
+     * @param string $invite_id The identifier of the invite. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function deleteInviteAsync($invite_id)
+    {
+        return $this->deleteInviteAsyncWithHttpInfo($invite_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteInviteAsyncWithHttpInfo
+     *
+     * Delete an invite.
+     *
+     * @param string $invite_id The identifier of the invite. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function deleteInviteAsyncWithHttpInfo($invite_id)
+    {
+        $returnType = '';
+        $request = $this->deleteInviteRequest($invite_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation deleteRecord
      *
      * Deletes an access record.
      *
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param string $record_id The identifier of the access record. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return void
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function deleteRecord($record_id)
     {
@@ -1068,11 +1087,12 @@ class AccessRecordsApi
      *
      * Deletes an access record.
      *
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param string $record_id The identifier of the access record. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function deleteRecordWithHttpInfo($record_id)
     {
@@ -1108,79 +1128,19 @@ class AccessRecordsApi
             }
 
             return [null, $statusCode, $response->getHeaders()];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-            }
             throw $e;
         }
     }
 
     /**
-     * Operation deleteRecordAsync
-     *
-     * Deletes an access record.
-     *
-     * @param  string $record_id The identifier of the access record. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function deleteRecordAsync($record_id)
-    {
-        return $this->deleteRecordAsyncWithHttpInfo($record_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation deleteRecordAsyncWithHttpInfo
-     *
-     * Deletes an access record.
-     *
-     * @param  string $record_id The identifier of the access record. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function deleteRecordAsyncWithHttpInfo($record_id)
-    {
-        $returnType = '';
-        $request = $this->deleteRecordRequest($record_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    return [null, $response->getStatusCode(), $response->getHeaders()];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'deleteRecord'
      *
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param string $record_id The identifier of the access record. (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function deleteRecordRequest($record_id)
     {
@@ -1197,7 +1157,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($record_id !== null) {
@@ -1241,20 +1200,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -1277,19 +1234,80 @@ class AccessRecordsApi
     }
 
     /**
+     * Operation deleteRecordAsync
+     *
+     * Deletes an access record.
+     *
+     * @param string $record_id The identifier of the access record. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function deleteRecordAsync($record_id)
+    {
+        return $this->deleteRecordAsyncWithHttpInfo($record_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteRecordAsyncWithHttpInfo
+     *
+     * Deletes an access record.
+     *
+     * @param string $record_id The identifier of the access record. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function deleteRecordAsyncWithHttpInfo($record_id)
+    {
+        $returnType = '';
+        $request = $this->deleteRecordRequest($record_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation getRecord
      *
      * Get an access record for the account.
      *
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param string $record_id The identifier of the access record. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return AccessRecord
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getRecord($record_id)
     {
-        list($response) = $this->getRecordWithHttpInfo($record_id);
+        [$response] = $this->getRecordWithHttpInfo($record_id);
         return $response;
     }
 
@@ -1298,11 +1316,12 @@ class AccessRecordsApi
      *
      * Get an access record for the account.
      *
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param string $record_id The identifier of the access record. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecord, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getRecordWithHttpInfo($record_id)
     {
@@ -1342,7 +1361,7 @@ class AccessRecordsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -1352,7 +1371,6 @@ class AccessRecordsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -1367,84 +1385,13 @@ class AccessRecordsApi
     }
 
     /**
-     * Operation getRecordAsync
-     *
-     * Get an access record for the account.
-     *
-     * @param  string $record_id The identifier of the access record. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getRecordAsync($record_id)
-    {
-        return $this->getRecordAsyncWithHttpInfo($record_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation getRecordAsyncWithHttpInfo
-     *
-     * Get an access record for the account.
-     *
-     * @param  string $record_id The identifier of the access record. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getRecordAsyncWithHttpInfo($record_id)
-    {
-        $returnType = '\AuthressSdk\Model\AccessRecord';
-        $request = $this->getRecordRequest($record_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'getRecord'
      *
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param string $record_id The identifier of the access record. (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function getRecordRequest($record_id)
     {
@@ -1461,7 +1408,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($record_id !== null) {
@@ -1505,20 +1451,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -1541,22 +1485,97 @@ class AccessRecordsApi
     }
 
     /**
+     * Operation getRecordAsync
+     *
+     * Get an access record for the account.
+     *
+     * @param string $record_id The identifier of the access record. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getRecordAsync($record_id)
+    {
+        return $this->getRecordAsyncWithHttpInfo($record_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getRecordAsyncWithHttpInfo
+     *
+     * Get an access record for the account.
+     *
+     * @param string $record_id The identifier of the access record. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getRecordAsyncWithHttpInfo($record_id)
+    {
+        $returnType = '\AuthressSdk\Model\AccessRecord';
+        $request = $this->getRecordRequest($record_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation getRecords
      *
      * Get all account records.
      *
-     * @param  int $limit Max number of results to return (optional, default to 20)
-     * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
-     * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
-     * @param  string $status Filter records by their current status. (optional)
+     * @param int    $limit  Max number of results to return (optional, default to 20)
+     * @param string $cursor Continuation cursor for paging (will automatically be set) (optional)
+     * @param string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
+     * @param string $status Filter records by their current status. (optional)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return AccessRecordCollection
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getRecords($limit = '20', $cursor = null, $filter = null, $status = null)
     {
-        list($response) = $this->getRecordsWithHttpInfo($limit, $cursor, $filter, $status);
+        [$response] = $this->getRecordsWithHttpInfo($limit, $cursor, $filter, $status);
         return $response;
     }
 
@@ -1565,14 +1584,15 @@ class AccessRecordsApi
      *
      * Get all account records.
      *
-     * @param  int $limit Max number of results to return (optional, default to 20)
-     * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
-     * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
-     * @param  string $status Filter records by their current status. (optional)
+     * @param int    $limit  Max number of results to return (optional, default to 20)
+     * @param string $cursor Continuation cursor for paging (will automatically be set) (optional)
+     * @param string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
+     * @param string $status Filter records by their current status. (optional)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecordCollection, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getRecordsWithHttpInfo($limit = '20', $cursor = null, $filter = null, $status = null)
     {
@@ -1612,7 +1632,7 @@ class AccessRecordsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -1622,7 +1642,6 @@ class AccessRecordsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -1637,97 +1656,19 @@ class AccessRecordsApi
     }
 
     /**
-     * Operation getRecordsAsync
-     *
-     * Get all account records.
-     *
-     * @param  int $limit Max number of results to return (optional, default to 20)
-     * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
-     * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
-     * @param  string $status Filter records by their current status. (optional)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getRecordsAsync($limit = '20', $cursor = null, $filter = null, $status = null)
-    {
-        return $this->getRecordsAsyncWithHttpInfo($limit, $cursor, $filter, $status)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation getRecordsAsyncWithHttpInfo
-     *
-     * Get all account records.
-     *
-     * @param  int $limit Max number of results to return (optional, default to 20)
-     * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
-     * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
-     * @param  string $status Filter records by their current status. (optional)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function getRecordsAsyncWithHttpInfo($limit = '20', $cursor = null, $filter = null, $status = null)
-    {
-        $returnType = '\AuthressSdk\Model\AccessRecordCollection';
-        $request = $this->getRecordsRequest($limit, $cursor, $filter, $status);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'getRecords'
      *
-     * @param  int $limit Max number of results to return (optional, default to 20)
-     * @param  string $cursor Continuation cursor for paging (will automatically be set) (optional)
-     * @param  string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
-     * @param  string $status Filter records by their current status. (optional)
+     * @param int    $limit  Max number of results to return (optional, default to 20)
+     * @param string $cursor Continuation cursor for paging (will automatically be set) (optional)
+     * @param string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
+     * @param string $status Filter records by their current status. (optional)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function getRecordsRequest($limit = '20', $cursor = null, $filter = null, $status = null)
     {
-
         $resourcePath = '/v1/records';
         $formParams = [];
         $queryParams = [];
@@ -1751,7 +1692,6 @@ class AccessRecordsApi
         if ($status !== null) {
             $queryParams['status'] = ObjectSerializer::toQueryValue($status, null);
         }
-
 
         // body params
         $_tempBody = null;
@@ -1786,20 +1726,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -1822,19 +1760,100 @@ class AccessRecordsApi
     }
 
     /**
+     * Operation getRecordsAsync
+     *
+     * Get all account records.
+     *
+     * @param int    $limit  Max number of results to return (optional, default to 20)
+     * @param string $cursor Continuation cursor for paging (will automatically be set) (optional)
+     * @param string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
+     * @param string $status Filter records by their current status. (optional)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getRecordsAsync($limit = '20', $cursor = null, $filter = null, $status = null)
+    {
+        return $this->getRecordsAsyncWithHttpInfo($limit, $cursor, $filter, $status)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getRecordsAsyncWithHttpInfo
+     *
+     * Get all account records.
+     *
+     * @param int    $limit  Max number of results to return (optional, default to 20)
+     * @param string $cursor Continuation cursor for paging (will automatically be set) (optional)
+     * @param string $filter Filter to search records by. This is a case insensitive search through every text field. (optional)
+     * @param string $status Filter records by their current status. (optional)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getRecordsAsyncWithHttpInfo($limit = '20', $cursor = null, $filter = null, $status = null)
+    {
+        $returnType = '\AuthressSdk\Model\AccessRecordCollection';
+        $request = $this->getRecordsRequest($limit, $cursor, $filter, $status);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation respondToInvite
      *
      * Accept an invite.
      *
-     * @param  string $invite_id The identifier of the invite. (required)
+     * @param string $invite_id The identifier of the invite. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return Account
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function respondToInvite($invite_id)
     {
-        list($response) = $this->respondToInviteWithHttpInfo($invite_id);
+        [$response] = $this->respondToInviteWithHttpInfo($invite_id);
         return $response;
     }
 
@@ -1843,11 +1862,12 @@ class AccessRecordsApi
      *
      * Accept an invite.
      *
-     * @param  string $invite_id The identifier of the invite. (required)
+     * @param string $invite_id The identifier of the invite. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\Account, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function respondToInviteWithHttpInfo($invite_id)
     {
@@ -1887,7 +1907,7 @@ class AccessRecordsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -1897,7 +1917,6 @@ class AccessRecordsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -1912,84 +1931,13 @@ class AccessRecordsApi
     }
 
     /**
-     * Operation respondToInviteAsync
-     *
-     * Accept an invite.
-     *
-     * @param  string $invite_id The identifier of the invite. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function respondToInviteAsync($invite_id)
-    {
-        return $this->respondToInviteAsyncWithHttpInfo($invite_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation respondToInviteAsyncWithHttpInfo
-     *
-     * Accept an invite.
-     *
-     * @param  string $invite_id The identifier of the invite. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function respondToInviteAsyncWithHttpInfo($invite_id)
-    {
-        $returnType = '\AuthressSdk\Model\Account';
-        $request = $this->respondToInviteRequest($invite_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'respondToInvite'
      *
-     * @param  string $invite_id The identifier of the invite. (required)
+     * @param string $invite_id The identifier of the invite. (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function respondToInviteRequest($invite_id)
     {
@@ -2006,7 +1954,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($invite_id !== null) {
@@ -2050,20 +1997,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -2086,20 +2031,95 @@ class AccessRecordsApi
     }
 
     /**
+     * Operation respondToInviteAsync
+     *
+     * Accept an invite.
+     *
+     * @param string $invite_id The identifier of the invite. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function respondToInviteAsync($invite_id)
+    {
+        return $this->respondToInviteAsyncWithHttpInfo($invite_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation respondToInviteAsyncWithHttpInfo
+     *
+     * Accept an invite.
+     *
+     * @param string $invite_id The identifier of the invite. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function respondToInviteAsyncWithHttpInfo($invite_id)
+    {
+        $returnType = '\AuthressSdk\Model\Account';
+        $request = $this->respondToInviteRequest($invite_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation updateRecord
      *
      * Update an access record.
      *
-     * @param  AccessRecord $body body (required)
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param AccessRecord $body      body (required)
+     * @param string       $record_id The identifier of the access record. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return AccessRecord
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function updateRecord($body, $record_id)
     {
-        list($response) = $this->updateRecordWithHttpInfo($body, $record_id);
+        [$response] = $this->updateRecordWithHttpInfo($body, $record_id);
         return $response;
     }
 
@@ -2108,12 +2128,13 @@ class AccessRecordsApi
      *
      * Update an access record.
      *
-     * @param  AccessRecord $body (required)
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param AccessRecord $body      (required)
+     * @param string       $record_id The identifier of the access record. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws InvalidArgumentException
      * @return array of \AuthressSdk\Model\AccessRecord, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function updateRecordWithHttpInfo($body, $record_id)
     {
@@ -2153,7 +2174,7 @@ class AccessRecordsApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -2163,7 +2184,6 @@ class AccessRecordsApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
             if ($e->getCode() == 200) {
                 $data = ObjectSerializer::deserialize(
@@ -2178,87 +2198,14 @@ class AccessRecordsApi
     }
 
     /**
-     * Operation updateRecordAsync
-     *
-     * Update an access record.
-     *
-     * @param  AccessRecord $body (required)
-     * @param  string $record_id The identifier of the access record. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function updateRecordAsync($body, $record_id)
-    {
-        return $this->updateRecordAsyncWithHttpInfo($body, $record_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation updateRecordAsyncWithHttpInfo
-     *
-     * Update an access record.
-     *
-     * @param  AccessRecord $body (required)
-     * @param  string $record_id The identifier of the access record. (required)
-     *
-     * @throws InvalidArgumentException
-     * @return PromiseInterface
-     */
-    public function updateRecordAsyncWithHttpInfo($body, $record_id)
-    {
-        $returnType = '\AuthressSdk\Model\AccessRecord';
-        $request = $this->updateRecordRequest($body, $record_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'updateRecord'
      *
-     * @param  AccessRecord $body (required)
-     * @param  string $record_id The identifier of the access record. (required)
+     * @param AccessRecord $body      (required)
+     * @param string       $record_id The identifier of the access record. (required)
+     *
+     * @return \GuzzleHttp\Psr7\Request
      *
      * @throws InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
      */
     protected function updateRecordRequest($body, $record_id)
     {
@@ -2281,7 +2228,6 @@ class AccessRecordsApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($record_id !== null) {
@@ -2328,20 +2274,18 @@ class AccessRecordsApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
                 $httpBody = Utils::jsonEncode($formParams);
-
             } else {
                 // for HTTP post (form)
                 $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -2364,21 +2308,78 @@ class AccessRecordsApi
     }
 
     /**
-     * Create http client option
+     * Operation updateRecordAsync
      *
-     * @throws RuntimeException on file opening failure
-     * @return array of http client options
+     * Update an access record.
+     *
+     * @param AccessRecord $body      (required)
+     * @param string       $record_id The identifier of the access record. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
      */
-    protected function createHttpClientOption()
+    public function updateRecordAsync($body, $record_id)
     {
-        $options = [];
-        if ($this->config->getDebug()) {
-            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
-            if (!$options[RequestOptions::DEBUG]) {
-                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
-            }
-        }
+        return $this->updateRecordAsyncWithHttpInfo($body, $record_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
 
-        return $options;
+    /**
+     * Operation updateRecordAsyncWithHttpInfo
+     *
+     * Update an access record.
+     *
+     * @param AccessRecord $body      (required)
+     * @param string       $record_id The identifier of the access record. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function updateRecordAsyncWithHttpInfo($body, $record_id)
+    {
+        $returnType = '\AuthressSdk\Model\AccessRecord';
+        $request = $this->updateRecordRequest($body, $record_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
     }
 }
