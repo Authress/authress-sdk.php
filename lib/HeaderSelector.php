@@ -1,32 +1,44 @@
 <?php
 /**
  * ApiException
-
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk;
-
-use \Exception;
 
 /**
  * ApiException Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class HeaderSelector
 {
+    /**
+     * @param string[] $accept
+     *
+     * @return array
+     */
+    public function selectHeadersForMultipart($accept)
+    {
+        $headers = $this->selectHeaders($accept, []);
+
+        unset($headers['Content-Type']);
+        return $headers;
+    }
 
     /**
      * @param string[] $accept
      * @param string[] $contentTypes
+     *
      * @return array
      */
     public function selectHeaders($accept, $contentTypes)
@@ -43,18 +55,6 @@ class HeaderSelector
     }
 
     /**
-     * @param string[] $accept
-     * @return array
-     */
-    public function selectHeadersForMultipart($accept)
-    {
-        $headers = $this->selectHeaders($accept, []);
-
-        unset($headers['Content-Type']);
-        return $headers;
-    }
-
-    /**
      * Return the header 'Accept' based on an array of Accept provided
      *
      * @param string[] $accept Array of header
@@ -67,9 +67,8 @@ class HeaderSelector
             return null;
         } elseif (preg_grep("/application\/json/i", $accept)) {
             return 'application/json';
-        } else {
-            return implode(',', $accept);
         }
+        return implode(',', $accept);
     }
 
     /**
@@ -85,9 +84,7 @@ class HeaderSelector
             return 'application/json';
         } elseif (preg_grep("/application\/json/i", $contentType)) {
             return 'application/json';
-        } else {
-            return implode(',', $contentType);
         }
+        return implode(',', $contentType);
     }
 }
-

@@ -1,55 +1,104 @@
 <?php
 /**
  * ResourcePermissionCollectionLinks
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
 
 /**
  * ResourcePermissionCollectionLinks Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'ResourcePermissionCollection_links';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
         'self' => '\AuthressSdk\Model\V1recordsLinksSelf',
-'next' => '\AuthressSdk\Model\ResourcePermissionCollectionLinksNext'    ];
+        'next' => '\AuthressSdk\Model\ResourcePermissionCollectionLinksNext'
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
         'self' => null,
-'next' => null    ];
+        'next' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'self' => 'self',
+        'next' => 'next'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'self' => 'setSelf',
+        'next' => 'setNext'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'self' => 'getSelf',
+        'next' => 'getNext'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['self'] = $data['self'] ?? null;
+        $this->container['next'] = $data['next'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -70,34 +119,6 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'self' => 'self',
-'next' => 'next'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'self' => 'setSelf',
-'next' => 'setNext'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'self' => 'getSelf',
-'next' => 'getNext'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -130,26 +151,15 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var array
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param array $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['self'] = $data['self'] ?? null;
-        $this->container['next'] = $data['next'] ?? null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -166,18 +176,6 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets self
@@ -226,12 +224,13 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -241,7 +240,7 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
@@ -253,8 +252,8 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -270,7 +269,7 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -289,7 +288,7 @@ class ResourcePermissionCollectionLinks implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

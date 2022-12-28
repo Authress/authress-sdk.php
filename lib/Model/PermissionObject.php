@@ -1,60 +1,118 @@
 <?php
 /**
  * PermissionObject
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
 
 /**
  * PermissionObject Class Doc Comment
  *
- * @category Class
+ * @category    Class
+ *
  * @description The collective action and associate grants on a permission
- * @package  AuthressSdk
- * @author   Authress Developers
- * @link     https://authress.io/app/#/api
+ *
+ * @author      Authress Developers
+ *
+ * @link        https://authress.io/app/#/api
  */
 class PermissionObject implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'PermissionObject';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
         'action' => 'string',
-'allow' => 'bool',
-'grant' => 'bool',
-'delegate' => 'bool'    ];
+        'allow' => 'bool',
+        'grant' => 'bool',
+        'delegate' => 'bool'
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
         'action' => null,
-'allow' => null,
-'grant' => null,
-'delegate' => null    ];
+        'allow' => null,
+        'grant' => null,
+        'delegate' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'action' => 'action',
+        'allow' => 'allow',
+        'grant' => 'grant',
+        'delegate' => 'delegate'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'action' => 'setAction',
+        'allow' => 'setAllow',
+        'grant' => 'setGrant',
+        'delegate' => 'setDelegate'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'action' => 'getAction',
+        'allow' => 'getAllow',
+        'grant' => 'getGrant',
+        'delegate' => 'getDelegate'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['action'] = $data['action'] ?? null;
+        $this->container['allow'] = $data['allow'] ?? null;
+        $this->container['grant'] = $data['grant'] ?? null;
+        $this->container['delegate'] = $data['delegate'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -75,40 +133,6 @@ class PermissionObject implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'action' => 'action',
-'allow' => 'allow',
-'grant' => 'grant',
-'delegate' => 'delegate'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'action' => 'setAction',
-'allow' => 'setAllow',
-'grant' => 'setGrant',
-'delegate' => 'setDelegate'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'action' => 'getAction',
-'allow' => 'getAllow',
-'grant' => 'getGrant',
-'delegate' => 'getDelegate'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -141,28 +165,15 @@ class PermissionObject implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var array
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param array $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['action'] = $data['action'] ?? null;
-        $this->container['allow'] = $data['allow'] ?? null;
-        $this->container['grant'] = $data['grant'] ?? null;
-        $this->container['delegate'] = $data['delegate'] ?? null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -188,18 +199,6 @@ class PermissionObject implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets action
@@ -296,12 +295,13 @@ class PermissionObject implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -311,7 +311,7 @@ class PermissionObject implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
@@ -323,8 +323,8 @@ class PermissionObject implements ModelInterface, ArrayAccess
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -340,7 +340,7 @@ class PermissionObject implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -359,7 +359,7 @@ class PermissionObject implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

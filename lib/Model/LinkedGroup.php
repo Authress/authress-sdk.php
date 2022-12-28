@@ -1,54 +1,100 @@
 <?php
 /**
  * LinkedGroup
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
 
 /**
  * LinkedGroup Class Doc Comment
  *
- * @category Class
+ * @category    Class
+ *
  * @description A group object that links to a group resource
- * @package  AuthressSdk
- * @author   Authress Developers
- * @link     https://authress.io/app/#/api
+ *
+ * @author      Authress Developers
+ *
+ * @link        https://authress.io/app/#/api
  */
 class LinkedGroup implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'LinkedGroup';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
-        'group_id' => 'string'    ];
+        'group_id' => 'string'
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
-        'group_id' => null    ];
+        'group_id' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'group_id' => 'groupId'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'group_id' => 'setGroupId'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'group_id' => 'getGroupId'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['group_id'] = $data['group_id'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -69,31 +115,6 @@ class LinkedGroup implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'group_id' => 'groupId'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'group_id' => 'setGroupId'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'group_id' => 'getGroupId'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -126,25 +147,15 @@ class LinkedGroup implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var array
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param array $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['group_id'] = $data['group_id'] ?? null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -161,18 +172,6 @@ class LinkedGroup implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets group_id
@@ -197,12 +196,13 @@ class LinkedGroup implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -212,7 +212,7 @@ class LinkedGroup implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
@@ -224,8 +224,8 @@ class LinkedGroup implements ModelInterface, ArrayAccess
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -241,7 +241,7 @@ class LinkedGroup implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -260,7 +260,7 @@ class LinkedGroup implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

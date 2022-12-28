@@ -1,53 +1,98 @@
 <?php
 /**
  * V1recordsResources
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
 
 /**
  * V1recordsResources Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class V1recordsResources implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'v1records_resources';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
-        'resource_uri' => 'string'    ];
+        'resource_uri' => 'string'
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
-        'resource_uri' => null    ];
+        'resource_uri' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'resource_uri' => 'resourceUri'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'resource_uri' => 'setResourceUri'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'resource_uri' => 'getResourceUri'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['resource_uri'] = $data['resource_uri'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -68,31 +113,6 @@ class V1recordsResources implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'resource_uri' => 'resourceUri'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'resource_uri' => 'setResourceUri'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'resource_uri' => 'getResourceUri'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -125,25 +145,15 @@ class V1recordsResources implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var array
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param array $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['resource_uri'] = $data['resource_uri'] ?? null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -160,18 +170,6 @@ class V1recordsResources implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets resource_uri
@@ -196,12 +194,13 @@ class V1recordsResources implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -211,7 +210,7 @@ class V1recordsResources implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
@@ -223,8 +222,8 @@ class V1recordsResources implements ModelInterface, ArrayAccess
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -240,7 +239,7 @@ class V1recordsResources implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -259,7 +258,7 @@ class V1recordsResources implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

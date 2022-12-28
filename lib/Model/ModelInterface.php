@@ -1,20 +1,19 @@
 <?php
 /**
  * ModelInterface
- 
+ *
  * @category Class
- * @package  AuthressSdk\Model
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
-
 
 namespace AuthressSdk\Model;
 
 /**
  * Interface abstracting model access.
  *
- * @package AuthressSdk\Model
  * @author  Authress Developers
  */
 interface ModelInterface
