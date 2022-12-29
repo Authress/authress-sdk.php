@@ -1,56 +1,106 @@
 <?php
 /**
  * Identity
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
 
 /**
  * Identity Class Doc Comment
  *
- * @category Class
+ * @category    Class
+ *
  * @description The identifying information which uniquely links a JWT OIDC token to an identity provider
- * @package  AuthressSdk
- * @author   Authress Developers
- * @link     https://authress.io/app/#/api
+ *
+ * @author      Authress Developers
+ *
+ * @link        https://authress.io/app/#/api
  */
 class Identity implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'Identity';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
         'issuer' => 'string',
-'audience' => 'string'    ];
+        'audience' => 'string'
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
         'issuer' => null,
-'audience' => null    ];
+        'audience' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'issuer' => 'issuer',
+        'audience' => 'audience'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'issuer' => 'setIssuer',
+        'audience' => 'setAudience'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'issuer' => 'getIssuer',
+        'audience' => 'getAudience'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['issuer'] = $data['issuer'] ?? null;
+        $this->container['audience'] = $data['audience'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -71,34 +121,6 @@ class Identity implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'issuer' => 'issuer',
-'audience' => 'audience'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'issuer' => 'setIssuer',
-'audience' => 'setAudience'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'issuer' => 'getIssuer',
-'audience' => 'getAudience'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -131,26 +153,15 @@ class Identity implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var mixed[]
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param mixed[] $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['issuer'] = isset($data['issuer']) ? $data['issuer'] : null;
-        $this->container['audience'] = isset($data['audience']) ? $data['audience'] : null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -170,18 +181,6 @@ class Identity implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets issuer
@@ -230,12 +229,13 @@ class Identity implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -245,20 +245,20 @@ class Identity implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -274,7 +274,7 @@ class Identity implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -293,7 +293,7 @@ class Identity implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

@@ -1,60 +1,119 @@
 <?php
 /**
  * Client
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
+use DateTime;
 
 /**
  * Client Class Doc Comment
  *
- * @category Class
+ * @category    Class
+ *
  * @description A client configuration.
- * @package  AuthressSdk
- * @author   Authress Developers
- * @link     https://authress.io/app/#/api
+ *
+ * @author      Authress Developers
+ *
+ * @link        https://authress.io/app/#/api
  */
 class Client implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'Client';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
         'client_id' => 'string',
-'created_time' => '\DateTime',
-'name' => '',
-'options' => '\AuthressSdk\Model\V1clientsOptions'    ];
+        'created_time' => '\DateTime',
+        'name' => '',
+        'options' => '\AuthressSdk\Model\V1clientsOptions'
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
         'client_id' => null,
-'created_time' => 'date-time',
-'name' => null,
-'options' => null    ];
+        'created_time' => 'date-time',
+        'name' => null,
+        'options' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'client_id' => 'clientId',
+        'created_time' => 'createdTime',
+        'name' => 'name',
+        'options' => 'options'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'client_id' => 'setClientId',
+        'created_time' => 'setCreatedTime',
+        'name' => 'setName',
+        'options' => 'setOptions'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'client_id' => 'getClientId',
+        'created_time' => 'getCreatedTime',
+        'name' => 'getName',
+        'options' => 'getOptions'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['client_id'] = $data['client_id'] ?? null;
+        $this->container['created_time'] = $data['created_time'] ?? null;
+        $this->container['name'] = $data['name'] ?? null;
+        $this->container['options'] = $data['options'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -75,40 +134,6 @@ class Client implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'client_id' => 'clientId',
-'created_time' => 'createdTime',
-'name' => 'name',
-'options' => 'options'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'client_id' => 'setClientId',
-'created_time' => 'setCreatedTime',
-'name' => 'setName',
-'options' => 'setOptions'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'client_id' => 'getClientId',
-'created_time' => 'getCreatedTime',
-'name' => 'getName',
-'options' => 'getOptions'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -141,28 +166,15 @@ class Client implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var mixed[]
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param mixed[] $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['client_id'] = isset($data['client_id']) ? $data['client_id'] : null;
-        $this->container['created_time'] = isset($data['created_time']) ? $data['created_time'] : null;
-        $this->container['name'] = isset($data['name']) ? $data['name'] : null;
-        $this->container['options'] = isset($data['options']) ? $data['options'] : null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -182,18 +194,6 @@ class Client implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets client_id
@@ -222,7 +222,7 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Gets created_time
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getCreatedTime()
     {
@@ -232,7 +232,7 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Sets created_time
      *
-     * @param \DateTime $created_time created_time
+     * @param DateTime $created_time created_time
      *
      * @return $this
      */
@@ -245,8 +245,6 @@ class Client implements ModelInterface, ArrayAccess
 
     /**
      * Gets name
-     *
-     * @return 
      */
     public function getName()
     {
@@ -256,7 +254,7 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Sets name
      *
-     * @param  $name The name of the client
+     * @param $name The name of the client
      *
      * @return $this
      */
@@ -290,12 +288,13 @@ class Client implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -305,20 +304,20 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -334,7 +333,7 @@ class Client implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -353,7 +352,7 @@ class Client implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

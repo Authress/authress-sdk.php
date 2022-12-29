@@ -1,55 +1,105 @@
 <?php
 /**
  * TokenRequest
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
+use DateTime;
 
 /**
  * TokenRequest Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class TokenRequest implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'TokenRequest';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
         'statements' => '\AuthressSdk\Model\V1recordsStatements[]',
-'expires' => '\DateTime'    ];
+        'expires' => '\DateTime'
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
         'statements' => null,
-'expires' => 'date-time'    ];
+        'expires' => 'date-time'
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'statements' => 'statements',
+        'expires' => 'expires'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'statements' => 'setStatements',
+        'expires' => 'setExpires'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'statements' => 'getStatements',
+        'expires' => 'getExpires'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['statements'] = $data['statements'] ?? null;
+        $this->container['expires'] = $data['expires'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -70,34 +120,6 @@ class TokenRequest implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'statements' => 'statements',
-'expires' => 'expires'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'statements' => 'setStatements',
-'expires' => 'setExpires'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'statements' => 'getStatements',
-'expires' => 'getExpires'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -130,26 +152,15 @@ class TokenRequest implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var mixed[]
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param mixed[] $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['statements'] = isset($data['statements']) ? $data['statements'] : null;
-        $this->container['expires'] = isset($data['expires']) ? $data['expires'] : null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -169,18 +180,6 @@ class TokenRequest implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets statements
@@ -209,7 +208,7 @@ class TokenRequest implements ModelInterface, ArrayAccess
     /**
      * Gets expires
      *
-     * @return \DateTime
+     * @return DateTime
      */
     public function getExpires()
     {
@@ -219,7 +218,7 @@ class TokenRequest implements ModelInterface, ArrayAccess
     /**
      * Sets expires
      *
-     * @param \DateTime $expires The ISO8601 datetime when the token will expire. Default is 24 hours from now.
+     * @param DateTime $expires The ISO8601 datetime when the token will expire. Default is 24 hours from now.
      *
      * @return $this
      */
@@ -229,12 +228,13 @@ class TokenRequest implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -244,20 +244,20 @@ class TokenRequest implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -273,7 +273,7 @@ class TokenRequest implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -292,7 +292,7 @@ class TokenRequest implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

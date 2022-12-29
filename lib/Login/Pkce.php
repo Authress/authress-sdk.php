@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AuthressSdk\Login;
 
+use Exception;
+
 /**
  * Class PKCE.
  */
@@ -14,8 +16,6 @@ final class Pkce
      * letters, numbers and "-", ".", "_", "~", as defined in the RFC 7636
      * specification.
      *
-     * @param int $length Code verifier length
-     *
      * @link https://tools.ietf.org/html/rfc7636
      */
     public static function generateCodeVerifier(): string
@@ -24,12 +24,12 @@ final class Pkce
 
         while (($len = mb_strlen($string)) < 128) {
             $size = 128 - $len;
-            $size = $size >= 1 ? $size : 1;
+            $size = max($size, 1);
 
             try {
                 $bytes = random_bytes($size);
-            } catch (\Exception $exception) {
-                $bytes = (string) openssl_random_pseudo_bytes($size);
+            } catch (Exception $exception) {
+                $bytes = (string)openssl_random_pseudo_bytes($size);
             }
 
             $string .= mb_substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);

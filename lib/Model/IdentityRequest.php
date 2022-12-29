@@ -1,56 +1,106 @@
 <?php
 /**
  * IdentityRequest
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
 
 /**
  * IdentityRequest Class Doc Comment
  *
- * @category Class
+ * @category    Class
+ *
  * @description Request to link an identity provider&#x27;s audience and your app&#x27;s audience with Authress.
- * @package  AuthressSdk
- * @author   Authress Developers
- * @link     https://authress.io/app/#/api
+ *
+ * @author      Authress Developers
+ *
+ * @link        https://authress.io/app/#/api
  */
 class IdentityRequest implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
+    public const DISCRIMINATOR = null;
 
     /**
-      * The original name of the model.
-      *
-      * @var string
-      */
+     * The original name of the model.
+     *
+     * @var string
+     */
     protected static $swaggerModelName = 'IdentityRequest';
 
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
         'jwt' => 'string',
-'preferred_audience' => ''    ];
+        'preferred_audience' => ''
+    ];
 
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
         'jwt' => null,
-'preferred_audience' => null    ];
+        'preferred_audience' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'jwt' => 'jwt',
+        'preferred_audience' => 'preferredAudience'
+    ];
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'jwt' => 'setJwt',
+        'preferred_audience' => 'setPreferredAudience'
+    ];
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'jwt' => 'getJwt',
+        'preferred_audience' => 'getPreferredAudience'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['jwt'] = $data['jwt'] ?? null;
+        $this->container['preferred_audience'] = $data['preferred_audience'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -71,34 +121,6 @@ class IdentityRequest implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'jwt' => 'jwt',
-'preferred_audience' => 'preferredAudience'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'jwt' => 'setJwt',
-'preferred_audience' => 'setPreferredAudience'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'jwt' => 'getJwt',
-'preferred_audience' => 'getPreferredAudience'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -131,26 +153,15 @@ class IdentityRequest implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    
-
     /**
-     * Associative array for storing property values
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @var mixed[]
+     * @return bool True if all properties are valid
      */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param mixed[] $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
+    public function valid()
     {
-        $this->container['jwt'] = isset($data['jwt']) ? $data['jwt'] : null;
-        $this->container['preferred_audience'] = isset($data['preferred_audience']) ? $data['preferred_audience'] : null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -167,18 +178,6 @@ class IdentityRequest implements ModelInterface, ArrayAccess
         }
         return $invalidProperties;
     }
-
-    /**
-     * Validate all the properties in the model
-     * return true if all passed
-     *
-     * @return bool True if all properties are valid
-     */
-    public function valid()
-    {
-        return count($this->listInvalidProperties()) === 0;
-    }
-
 
     /**
      * Gets jwt
@@ -206,8 +205,6 @@ class IdentityRequest implements ModelInterface, ArrayAccess
 
     /**
      * Gets preferred_audience
-     *
-     * @return 
      */
     public function getPreferredAudience()
     {
@@ -217,7 +214,7 @@ class IdentityRequest implements ModelInterface, ArrayAccess
     /**
      * Sets preferred_audience
      *
-     * @param  $preferred_audience If the `jwt` token contains more than one valid audience, then the single audience that should associated with Authress. If more than one audience is preferred, repeat this call with each one.
+     * @param $preferred_audience If the `jwt` token contains more than one valid audience, then the single audience that should associated with Authress. If more than one audience is preferred, repeat this call with each one.
      *
      * @return $this
      */
@@ -227,12 +224,13 @@ class IdentityRequest implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -242,20 +240,20 @@ class IdentityRequest implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -271,7 +269,7 @@ class IdentityRequest implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -290,7 +288,7 @@ class IdentityRequest implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

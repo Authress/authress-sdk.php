@@ -8,7 +8,7 @@
  * @link     https://authress.io/app/#/api
  */
 
-require('vendor/autoload.php');
+require 'vendor/autoload.php';
 
 use AuthressSdk\AuthressClient;
 use AuthressSdk\Login\AuthenticationParameters;
@@ -19,10 +19,12 @@ $authressCustomDomain = "https://login.application.com";
 $applicationId = "app_APPLICATION_ID";
 $authressClient = new AuthressClient($authressCustomDomain, $applicationId);
 
-$options = new AuthenticationParameters([
+$options = new AuthenticationParameters(
+    [
     // When user clicks "Log in with Google (or Github)" pass the relevant connectionId here:  https://authress.io/app/#/setup?focus=connections
     'connectionId' => "google"
-]);
+    ]
+);
 
 // Returns true if the user is successfully logged in, and otherwise redirects the user to appropriate login page
 session_start();

@@ -1,33 +1,41 @@
 <?php
 /**
  * RolesApi
-
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\MultipartStream;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
 use AuthressSdk\ApiException;
 use AuthressSdk\AuthressClient;
 use AuthressSdk\HeaderSelector;
+use AuthressSdk\Model\Role;
 use AuthressSdk\ObjectSerializer;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\Psr7\Query;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Utils;
+use InvalidArgumentException;
+use RuntimeException;
+use stdClass;
 
 /**
  * RolesApi Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class RolesApi
@@ -48,12 +56,12 @@ class RolesApi
     protected $headerSelector;
 
     /**
-     * @param AuthressClient   $config
-     * @param HeaderSelector  $selector
+     * @param HeaderSelector $selector
      */
-    public function __construct(AuthressClient $config = null, HeaderSelector $selector = null) {
+    public function __construct(AuthressClient $config, HeaderSelector $selector = null)
+    {
         $this->client = new Client();
-        $this->config = $config ?: new AuthressClient();
+        $this->config = $config;
         $this->headerSelector = $selector ?: new HeaderSelector();
     }
 
@@ -70,15 +78,16 @@ class RolesApi
      *
      * Create a role.
      *
-     * @param  \AuthressSdk\Model\Role $body body (required)
+     * @param Role $body body (required)
      *
+     * @return Role
+     *
+     * @throws InvalidArgumentException
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Role
      */
     public function createRole($body)
     {
-        list($response) = $this->createRoleWithHttpInfo($body);
+        [$response] = $this->createRoleWithHttpInfo($body);
         return $response;
     }
 
@@ -87,11 +96,12 @@ class RolesApi
      *
      * Create a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param Role $body (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
      * @return array of \AuthressSdk\Model\Role, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function createRoleWithHttpInfo($body)
     {
@@ -131,7 +141,7 @@ class RolesApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -141,107 +151,33 @@ class RolesApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Role',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Role',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
     }
 
     /**
-     * Operation createRoleAsync
-     *
-     * Create a role.
-     *
-     * @param  \AuthressSdk\Model\Role $body (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function createRoleAsync($body)
-    {
-        return $this->createRoleAsyncWithHttpInfo($body)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation createRoleAsyncWithHttpInfo
-     *
-     * Create a role.
-     *
-     * @param  \AuthressSdk\Model\Role $body (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function createRoleAsyncWithHttpInfo($body)
-    {
-        $returnType = '\AuthressSdk\Model\Role';
-        $request = $this->createRoleRequest($body);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'createRole'
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
+     * @param Role $body (required)
      *
-     * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
+     *
+     * @throws InvalidArgumentException
      */
     protected function createRoleRequest($body)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling createRole'
             );
         }
@@ -252,8 +188,6 @@ class RolesApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
-
 
         // body params
         $_tempBody = null;
@@ -277,8 +211,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -291,20 +225,18 @@ class RolesApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
-
+                $httpBody = Utils::jsonEncode($formParams);
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -317,7 +249,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -327,15 +259,110 @@ class RolesApi
     }
 
     /**
+     * Create http client option
+     *
+     * @return array of http client options
+     *
+     * @throws RuntimeException on file opening failure
+     */
+    protected function createHttpClientOption()
+    {
+        $options = [];
+        if ($this->config->getDebug()) {
+            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
+            if (!$options[RequestOptions::DEBUG]) {
+                throw new RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Operation createRoleAsync
+     *
+     * Create a role.
+     *
+     * @param Role $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createRoleAsync($body)
+    {
+        return $this->createRoleAsyncWithHttpInfo($body)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation createRoleAsyncWithHttpInfo
+     *
+     * Create a role.
+     *
+     * @param Role $body (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function createRoleAsyncWithHttpInfo($body)
+    {
+        $returnType = '\AuthressSdk\Model\Role';
+        $request = $this->createRoleRequest($body);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation deleteRole
      *
      * Deletes a role.
      *
-     * @param  string $role_id The identifier of the role. (required)
+     * @param string $role_id The identifier of the role. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
      * @return void
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function deleteRole($role_id)
     {
@@ -347,11 +374,12 @@ class RolesApi
      *
      * Deletes a role.
      *
-     * @param  string $role_id The identifier of the role. (required)
+     * @param string $role_id The identifier of the role. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function deleteRoleWithHttpInfo($role_id)
     {
@@ -387,85 +415,25 @@ class RolesApi
             }
 
             return [null, $statusCode, $response->getHeaders()];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-            }
             throw $e;
         }
     }
 
     /**
-     * Operation deleteRoleAsync
-     *
-     * Deletes a role.
-     *
-     * @param  string $role_id The identifier of the role. (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function deleteRoleAsync($role_id)
-    {
-        return $this->deleteRoleAsyncWithHttpInfo($role_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation deleteRoleAsyncWithHttpInfo
-     *
-     * Deletes a role.
-     *
-     * @param  string $role_id The identifier of the role. (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function deleteRoleAsyncWithHttpInfo($role_id)
-    {
-        $returnType = '';
-        $request = $this->deleteRoleRequest($role_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    return [null, $response->getStatusCode(), $response->getHeaders()];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'deleteRole'
      *
-     * @param  string $role_id The identifier of the role. (required)
+     * @param string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
+     *
+     * @throws InvalidArgumentException
      */
     protected function deleteRoleRequest($role_id)
     {
         // verify the required parameter 'role_id' is set
         if ($role_id === null || (is_array($role_id) && count($role_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $role_id when calling deleteRole'
             );
         }
@@ -476,7 +444,6 @@ class RolesApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($role_id !== null) {
@@ -506,8 +473,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -520,20 +487,18 @@ class RolesApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
-
+                $httpBody = Utils::jsonEncode($formParams);
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -546,7 +511,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -556,19 +521,80 @@ class RolesApi
     }
 
     /**
+     * Operation deleteRoleAsync
+     *
+     * Deletes a role.
+     *
+     * @param string $role_id The identifier of the role. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function deleteRoleAsync($role_id)
+    {
+        return $this->deleteRoleAsyncWithHttpInfo($role_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation deleteRoleAsyncWithHttpInfo
+     *
+     * Deletes a role.
+     *
+     * @param string $role_id The identifier of the role. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function deleteRoleAsyncWithHttpInfo($role_id)
+    {
+        $returnType = '';
+        $request = $this->deleteRoleRequest($role_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    return [null, $response->getStatusCode(), $response->getHeaders()];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation getRole
      *
      * Get a role.
      *
-     * @param  string $role_id The identifier of the role. (required)
+     * @param string $role_id The identifier of the role. (required)
      *
+     * @return Role
+     *
+     * @throws InvalidArgumentException
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Role
      */
     public function getRole($role_id)
     {
-        list($response) = $this->getRoleWithHttpInfo($role_id);
+        [$response] = $this->getRoleWithHttpInfo($role_id);
         return $response;
     }
 
@@ -577,11 +603,12 @@ class RolesApi
      *
      * Get a role.
      *
-     * @param  string $role_id The identifier of the role. (required)
+     * @param string $role_id The identifier of the role. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
      * @return array of \AuthressSdk\Model\Role, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function getRoleWithHttpInfo($role_id)
     {
@@ -621,7 +648,7 @@ class RolesApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -631,107 +658,33 @@ class RolesApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Role',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Role',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
     }
 
     /**
-     * Operation getRoleAsync
-     *
-     * Get a role.
-     *
-     * @param  string $role_id The identifier of the role. (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function getRoleAsync($role_id)
-    {
-        return $this->getRoleAsyncWithHttpInfo($role_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation getRoleAsyncWithHttpInfo
-     *
-     * Get a role.
-     *
-     * @param  string $role_id The identifier of the role. (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function getRoleAsyncWithHttpInfo($role_id)
-    {
-        $returnType = '\AuthressSdk\Model\Role';
-        $request = $this->getRoleRequest($role_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'getRole'
      *
-     * @param  string $role_id The identifier of the role. (required)
+     * @param string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
+     *
+     * @throws InvalidArgumentException
      */
     protected function getRoleRequest($role_id)
     {
         // verify the required parameter 'role_id' is set
         if ($role_id === null || (is_array($role_id) && count($role_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $role_id when calling getRole'
             );
         }
@@ -742,7 +695,6 @@ class RolesApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($role_id !== null) {
@@ -772,8 +724,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -786,20 +738,18 @@ class RolesApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
-
+                $httpBody = Utils::jsonEncode($formParams);
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -812,7 +762,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -822,20 +772,95 @@ class RolesApi
     }
 
     /**
+     * Operation getRoleAsync
+     *
+     * Get a role.
+     *
+     * @param string $role_id The identifier of the role. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getRoleAsync($role_id)
+    {
+        return $this->getRoleAsyncWithHttpInfo($role_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
+
+    /**
+     * Operation getRoleAsyncWithHttpInfo
+     *
+     * Get a role.
+     *
+     * @param string $role_id The identifier of the role. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function getRoleAsyncWithHttpInfo($role_id)
+    {
+        $returnType = '\AuthressSdk\Model\Role';
+        $request = $this->getRoleRequest($role_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
+    }
+
+    /**
      * Operation updateRole
      *
      * Update a role.
      *
-     * @param  \AuthressSdk\Model\Role $body body (required)
-     * @param  string $role_id The identifier of the role. (required)
+     * @param Role   $body    body (required)
+     * @param string $role_id The identifier of the role. (required)
      *
+     * @return Role
+     *
+     * @throws InvalidArgumentException
      * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
-     * @return \AuthressSdk\Model\Role
      */
     public function updateRole($body, $role_id)
     {
-        list($response) = $this->updateRoleWithHttpInfo($body, $role_id);
+        [$response] = $this->updateRoleWithHttpInfo($body, $role_id);
         return $response;
     }
 
@@ -844,12 +869,13 @@ class RolesApi
      *
      * Update a role.
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
-     * @param  string $role_id The identifier of the role. (required)
+     * @param Role   $body    (required)
+     * @param string $role_id The identifier of the role. (required)
      *
-     * @throws \AuthressSdk\ApiException on non-2xx response
-     * @throws \InvalidArgumentException
      * @return array of \AuthressSdk\Model\Role, HTTP status code, HTTP response headers (array of strings)
+     *
+     * @throws InvalidArgumentException
+     * @throws \AuthressSdk\ApiException on non-2xx response
      */
     public function updateRoleWithHttpInfo($body, $role_id)
     {
@@ -889,7 +915,7 @@ class RolesApi
                 $content = $responseBody; //stream goes to serializer
             } else {
                 $content = $responseBody->getContents();
-                if (!in_array($returnType, ['string','integer','bool'])) {
+                if (!in_array($returnType, ['string', 'integer', 'bool'])) {
                     $content = json_decode($content);
                 }
             }
@@ -899,116 +925,40 @@ class RolesApi
                 $response->getStatusCode(),
                 $response->getHeaders()
             ];
-
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\AuthressSdk\Model\Role',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() == 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\AuthressSdk\Model\Role',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
             throw $e;
         }
     }
 
     /**
-     * Operation updateRoleAsync
-     *
-     * Update a role.
-     *
-     * @param  \AuthressSdk\Model\Role $body (required)
-     * @param  string $role_id The identifier of the role. (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function updateRoleAsync($body, $role_id)
-    {
-        return $this->updateRoleAsyncWithHttpInfo($body, $role_id)
-            ->then(
-                function ($response) {
-                    return $response[0];
-                }
-            );
-    }
-
-    /**
-     * Operation updateRoleAsyncWithHttpInfo
-     *
-     * Update a role.
-     *
-     * @param  \AuthressSdk\Model\Role $body (required)
-     * @param  string $role_id The identifier of the role. (required)
-     *
-     * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function updateRoleAsyncWithHttpInfo($body, $role_id)
-    {
-        $returnType = '\AuthressSdk\Model\Role';
-        $request = $this->updateRoleRequest($body, $role_id);
-
-        return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
-            ->then(
-                function ($response) use ($returnType) {
-                    $responseBody = $response->getBody();
-                    if ($returnType === '\SplFileObject') {
-                        $content = $responseBody; //stream goes to serializer
-                    } else {
-                        $content = $responseBody->getContents();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return [
-                        ObjectSerializer::deserialize($content, $returnType, []),
-                        $response->getStatusCode(),
-                        $response->getHeaders()
-                    ];
-                },
-                function ($exception) {
-                    $response = $exception->getResponse();
-                    $statusCode = $response->getStatusCode();
-                    throw new ApiException(
-                        sprintf(
-                            '[%d] Error connecting to the API (%s)',
-                            $statusCode,
-                            $exception->getRequest()->getUri()
-                        ),
-                        $statusCode,
-                        $response->getHeaders(),
-                        $response->getBody()
-                    );
-                }
-            );
-    }
-
-    /**
      * Create request for operation 'updateRole'
      *
-     * @param  \AuthressSdk\Model\Role $body (required)
-     * @param  string $role_id The identifier of the role. (required)
+     * @param Role   $body    (required)
+     * @param string $role_id The identifier of the role. (required)
      *
-     * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
+     *
+     * @throws InvalidArgumentException
      */
     protected function updateRoleRequest($body, $role_id)
     {
         // verify the required parameter 'body' is set
         if ($body === null || (is_array($body) && count($body) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $body when calling updateRole'
             );
         }
         // verify the required parameter 'role_id' is set
         if ($role_id === null || (is_array($role_id) && count($role_id) === 0)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Missing the required parameter $role_id when calling updateRole'
             );
         }
@@ -1019,7 +969,6 @@ class RolesApi
         $headerParams = [];
         $httpBody = '';
         $multipart = false;
-
 
         // path params
         if ($role_id !== null) {
@@ -1052,8 +1001,8 @@ class RolesApi
             // $_tempBody is the method argument, if present
             $httpBody = $_tempBody;
             // \stdClass has no __toString(), so we should encode it manually
-            if ($httpBody instanceof \stdClass && $headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($httpBody);
+            if ($httpBody instanceof stdClass && $headers['Content-Type'] === 'application/json') {
+                $httpBody = Utils::jsonEncode($httpBody);
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
@@ -1066,20 +1015,18 @@ class RolesApi
                 }
                 // for HTTP post (form)
                 $httpBody = new MultipartStream($multipartContents);
-
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
-
+                $httpBody = Utils::jsonEncode($formParams);
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = Query::build($formParams);
             }
         }
 
-            // // this endpoint requires Bearer token
-            if ($this->config->getAccessToken() !== null) {
+        // // this endpoint requires Bearer token
+        if ($this->config->getAccessToken() !== null) {
             $headers['Authorization'] = 'Bearer ' . $this->config->getAccessToken();
-            }
+        }
 
         $defaultHeaders = [];
         if ($this->config->getUserAgent()) {
@@ -1092,7 +1039,7 @@ class RolesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
+        $query = Query::build($queryParams);
         return new Request(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
@@ -1102,21 +1049,78 @@ class RolesApi
     }
 
     /**
-     * Create http client option
+     * Operation updateRoleAsync
      *
-     * @throws \RuntimeException on file opening failure
-     * @return array of http client options
+     * Update a role.
+     *
+     * @param Role   $body    (required)
+     * @param string $role_id The identifier of the role. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
      */
-    protected function createHttpClientOption()
+    public function updateRoleAsync($body, $role_id)
     {
-        $options = [];
-        if ($this->config->getDebug()) {
-            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
-            if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
-            }
-        }
+        return $this->updateRoleAsyncWithHttpInfo($body, $role_id)
+            ->then(
+                static function ($response) {
+                    return $response[0];
+                }
+            );
+    }
 
-        return $options;
+    /**
+     * Operation updateRoleAsyncWithHttpInfo
+     *
+     * Update a role.
+     *
+     * @param Role   $body    (required)
+     * @param string $role_id The identifier of the role. (required)
+     *
+     * @return PromiseInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function updateRoleAsyncWithHttpInfo($body, $role_id)
+    {
+        $returnType = '\AuthressSdk\Model\Role';
+        $request = $this->updateRoleRequest($body, $role_id);
+
+        return $this->client
+            ->sendAsync($request, $this->createHttpClientOption())
+            ->then(
+                static function ($response) use ($returnType) {
+                    $responseBody = $response->getBody();
+                    if ($returnType === '\SplFileObject') {
+                        $content = $responseBody; //stream goes to serializer
+                    } else {
+                        $content = $responseBody->getContents();
+                        if ($returnType !== 'string') {
+                            $content = json_decode($content);
+                        }
+                    }
+
+                    return [
+                        ObjectSerializer::deserialize($content, $returnType, []),
+                        $response->getStatusCode(),
+                        $response->getHeaders()
+                    ];
+                },
+                static function ($exception) {
+                    $response = $exception->getResponse();
+                    $statusCode = $response->getStatusCode();
+                    throw new ApiException(
+                        sprintf(
+                            '[%d] Error connecting to the API (%s)',
+                            $statusCode,
+                            $exception->getRequest()->getUri()
+                        ),
+                        $statusCode,
+                        $response->getHeaders(),
+                        $response->getBody()
+                    );
+                }
+            );
     }
 }

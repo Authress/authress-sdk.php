@@ -1,37 +1,41 @@
 <?php
 /**
  * AccessRecord
- 
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk\Model;
 
-use \ArrayAccess;
-use \AuthressSdk\ObjectSerializer;
+use ArrayAccess;
+use AuthressSdk\ObjectSerializer;
+use InvalidArgumentException;
 
 /**
  * AccessRecord Class Doc Comment
  *
- * @category Class
+ * @category    Class
+ *
  * @description The access record which links users to roles.
- * @package  AuthressSdk
- * @author   Authress Developers
- * @link     https://authress.io/app/#/api
+ *
+ * @author      Authress Developers
+ *
+ * @link        https://authress.io/app/#/api
  */
 class AccessRecord implements ModelInterface, ArrayAccess
 {
-    const DISCRIMINATOR = null;
-
+    public const DISCRIMINATOR = null;
+    public const STATUS_ACTIVE = 'ACTIVE';
+    public const STATUS_DELETED = 'DELETED';
     /**
-      * Array of property to type mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerTypes = [
         'record_id' => 'string',
         'name' => 'string',
@@ -42,13 +46,13 @@ class AccessRecord implements ModelInterface, ArrayAccess
         'groups' => '\AuthressSdk\Model\LinkedGroup[]',
         'admins' => '\AuthressSdk\Model\V1recordsUsers[]',
         'statements' => '\AuthressSdk\Model\V1recordsStatements[]',
-        'links' => '\AuthressSdk\Model\V1recordsLinks'    ];
-
+        'links' => '\AuthressSdk\Model\V1recordsLinks'
+    ];
     /**
-      * Array of property to format mappings. Used for (de)serialization
-      *
-      * @var string[]
-      */
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @var string[]
+     */
     protected static $swaggerFormats = [
         'record_id' => null,
         'name' => null,
@@ -59,7 +63,88 @@ class AccessRecord implements ModelInterface, ArrayAccess
         'groups' => null,
         'admins' => null,
         'statements' => null,
-        'links' => null    ];
+        'links' => null
+    ];
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'record_id' => 'recordId',
+        'name' => 'name',
+        'description' => 'description',
+        'status' => 'status',
+        'account' => 'account',
+        'users' => 'users',
+        'groups' => 'groups',
+        'admins' => 'admins',
+        'statements' => 'statements',
+        'links' => 'links'
+    ];
+
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'record_id' => 'setRecordId',
+        'name' => 'setName',
+        'description' => 'setDescription',
+        'status' => 'setStatus',
+        'account' => 'setAccount',
+        'users' => 'setUsers',
+        'groups' => 'setGroups',
+        'admins' => 'setAdmins',
+        'statements' => 'setStatements',
+        'links' => 'setLinks'
+    ];
+
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'record_id' => 'getRecordId',
+        'name' => 'getName',
+        'description' => 'getDescription',
+        'status' => 'getStatus',
+        'account' => 'getAccount',
+        'users' => 'getUsers',
+        'groups' => 'getGroups',
+        'admins' => 'getAdmins',
+        'statements' => 'getStatements',
+        'links' => 'getLinks'
+    ];
+    /**
+     * Associative array for storing property values
+     *
+     * @var array
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $data Associated array of property values
+     *                    initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->container['record_id'] = $data['record_id'] ?? null;
+        $this->container['name'] = $data['name'] ?? null;
+        $this->container['description'] = $data['description'] ?? null;
+        $this->container['status'] = $data['status'] ?? null;
+        $this->container['account'] = $data['account'] ?? null;
+        $this->container['users'] = $data['users'] ?? null;
+        $this->container['groups'] = $data['groups'] ?? null;
+        $this->container['admins'] = $data['admins'] ?? null;
+        $this->container['statements'] = $data['statements'] ?? null;
+        $this->container['links'] = $data['links'] ?? null;
+    }
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -80,58 +165,6 @@ class AccessRecord implements ModelInterface, ArrayAccess
     {
         return self::$swaggerFormats;
     }
-
-    /**
-     * Array of attributes where the key is the local name,
-     * and the value is the original name
-     *
-     * @var string[]
-     */
-    protected static $attributeMap = [
-        'record_id' => 'recordId',
-        'name' => 'name',
-        'description' => 'description',
-        'status' => 'status',
-        'account' => 'account',
-        'users' => 'users',
-        'groups' => 'groups',
-        'admins' => 'admins',
-        'statements' => 'statements',
-        'links' => 'links'    ];
-
-    /**
-     * Array of attributes to setter functions (for deserialization of responses)
-     *
-     * @var string[]
-     */
-    protected static $setters = [
-        'record_id' => 'setRecordId',
-        'name' => 'setName',
-        'description' => 'setDescription',
-        'status' => 'setStatus',
-        'account' => 'setAccount',
-        'users' => 'setUsers',
-        'groups' => 'setGroups',
-        'admins' => 'setAdmins',
-        'statements' => 'setStatements',
-        'links' => 'setLinks'    ];
-
-    /**
-     * Array of attributes to getter functions (for serialization of requests)
-     *
-     * @var string[]
-     */
-    protected static $getters = [
-        'record_id' => 'getRecordId',
-        'name' => 'getName',
-        'description' => 'getDescription',
-        'status' => 'getStatus',
-        'account' => 'getAccount',
-        'users' => 'getUsers',
-        'groups' => 'getGroups',
-        'admins' => 'getAdmins',
-        'statements' => 'getStatements',
-        'links' => 'getLinks'    ];
 
     /**
      * Array of attributes where the key is the local name,
@@ -164,47 +197,15 @@ class AccessRecord implements ModelInterface, ArrayAccess
         return self::$getters;
     }
 
-
-    const STATUS_ACTIVE = 'ACTIVE';
-    const STATUS_DELETED = 'DELETED';
-
     /**
-     * Gets allowable values of the enum
+     * Validate all the properties in the model
+     * return true if all passed
      *
-     * @return string[]
+     * @return bool True if all properties are valid
      */
-    public function getStatusAllowableValues()
+    public function valid()
     {
-        return [
-            self::STATUS_ACTIVE,
-            self::STATUS_DELETED,        ];
-    }
-
-    /**
-     * Associative array for storing property values
-     *
-     * @var mixed[]
-     */
-    protected $container = [];
-
-    /**
-     * Constructor
-     *
-     * @param mixed[] $data Associated array of property values
-     *                      initializing the model
-     */
-    public function __construct(array $data = null)
-    {
-        $this->container['record_id'] = isset($data['record_id']) ? $data['record_id'] : null;
-        $this->container['name'] = isset($data['name']) ? $data['name'] : null;
-        $this->container['description'] = isset($data['description']) ? $data['description'] : null;
-        $this->container['status'] = isset($data['status']) ? $data['status'] : null;
-        $this->container['account'] = isset($data['account']) ? $data['account'] : null;
-        $this->container['users'] = isset($data['users']) ? $data['users'] : null;
-        $this->container['groups'] = isset($data['groups']) ? $data['groups'] : null;
-        $this->container['admins'] = isset($data['admins']) ? $data['admins'] : null;
-        $this->container['statements'] = isset($data['statements']) ? $data['statements'] : null;
-        $this->container['links'] = isset($data['links']) ? $data['links'] : null;
+        return count($this->listInvalidProperties()) === 0;
     }
 
     /**
@@ -240,16 +241,17 @@ class AccessRecord implements ModelInterface, ArrayAccess
     }
 
     /**
-     * Validate all the properties in the model
-     * return true if all passed
+     * Gets allowable values of the enum
      *
-     * @return bool True if all properties are valid
+     * @return string[]
      */
-    public function valid()
+    public function getStatusAllowableValues()
     {
-        return count($this->listInvalidProperties()) === 0;
+        return [
+            self::STATUS_ACTIVE,
+            self::STATUS_DELETED,
+        ];
     }
-
 
     /**
      * Gets record_id
@@ -301,8 +303,6 @@ class AccessRecord implements ModelInterface, ArrayAccess
 
     /**
      * Gets description
-     *
-     * @return 
      */
     public function getDescription()
     {
@@ -312,7 +312,7 @@ class AccessRecord implements ModelInterface, ArrayAccess
     /**
      * Sets description
      *
-     * @param  $description More details about this record
+     * @param $description More details about this record
      *
      * @return $this
      */
@@ -344,7 +344,7 @@ class AccessRecord implements ModelInterface, ArrayAccess
     {
         $allowedValues = $this->getStatusAllowableValues();
         if (!is_null($status) && !in_array($status, $allowedValues, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     "Invalid value for 'status', must be one of '%s'",
                     implode("', '", $allowedValues)
@@ -499,12 +499,13 @@ class AccessRecord implements ModelInterface, ArrayAccess
 
         return $this;
     }
+
     /**
      * Returns true if offset exists. False otherwise.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
-     * @return boolean
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -514,20 +515,20 @@ class AccessRecord implements ModelInterface, ArrayAccess
     /**
      * Gets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return mixed
      */
     public function offsetGet($offset)
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**
      * Sets value based on offset.
      *
-     * @param integer $offset Offset
-     * @param mixed   $value  Value to be set
+     * @param int   $offset Offset
+     * @param mixed $value  Value to be set
      *
      * @return void
      */
@@ -543,7 +544,7 @@ class AccessRecord implements ModelInterface, ArrayAccess
     /**
      * Unsets offset.
      *
-     * @param integer $offset Offset
+     * @param int $offset Offset
      *
      * @return void
      */
@@ -562,7 +563,7 @@ class AccessRecord implements ModelInterface, ArrayAccess
         if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
             return json_encode(
                 ObjectSerializer::sanitizeForSerialization($this),
-                JSON_PRETTY_PRINT
+                \JSON_PRETTY_PRINT
             );
         }
 

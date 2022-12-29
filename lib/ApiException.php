@@ -1,29 +1,29 @@
 <?php
 /**
  * ApiException
-
+ *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 
-
 namespace AuthressSdk;
 
-use \Exception;
+use Exception;
 
 /**
  * ApiException Class Doc Comment
  *
  * @category Class
- * @package  AuthressSdk
+ *
  * @author   Authress Developers
+ *
  * @link     https://authress.io/app/#/api
  */
 class ApiException extends Exception
 {
-
     /**
      * The HTTP status code.
      *
@@ -48,7 +48,7 @@ class ApiException extends Exception
     /**
      * The deserialized response object
      *
-     * @var $responseObject;
+     * @var ;
      */
     protected $responseObject;
 
@@ -99,6 +99,16 @@ class ApiException extends Exception
     }
 
     /**
+     * Gets the deserialized response object (during deserialization)
+     *
+     * @return mixed the deserialized response object
+     */
+    public function getResponseObject()
+    {
+        return $this->responseObject;
+    }
+
+    /**
      * Sets the deserialized response object (during deserialization)
      *
      * @param mixed $obj Deserialized response object
@@ -108,15 +118,5 @@ class ApiException extends Exception
     public function setResponseObject($obj)
     {
         $this->responseObject = $obj;
-    }
-
-    /**
-     * Gets the deserialized response object (during deserialization)
-     *
-     * @return mixed the deserialized response object
-     */
-    public function getResponseObject()
-    {
-        return $this->responseObject;
     }
 }
