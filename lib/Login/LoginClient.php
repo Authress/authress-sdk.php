@@ -94,7 +94,7 @@ class LoginClient
                     'headers' => [
                         'Cookie' => 'authress-session=' . ($_COOKIE["authress-session"] ?? ''),
                         'Authorization' => 'Bearer ' . $token,
-                        'User-Agent' => 'PHP AuthressSDK',
+                        'User-Agent' => 'Authress SDK; PHP; ;',
                         'Origin' => $this->authressLoginHostUrl
                     ]
                 ]
@@ -153,7 +153,7 @@ class LoginClient
                     '/api/authentication/' . $nonce . '/tokens',
                     [
                         'headers' => [
-                            'User-Agent' => 'PHP AuthressSDK',
+                            'User-Agent' => 'Authress SDK; PHP; ;',
                             'Origin' => $this->authressLoginHostUrl
                         ],
                         'json' => [
@@ -187,7 +187,7 @@ class LoginClient
                 [
                     'headers' => [
                         'Cookie' => 'authress-session=' . ($_COOKIE["authress-session"] ?? ''),
-                        'User-Agent' => 'PHP AuthressSDK',
+                        'User-Agent' => 'Authress SDK; PHP; ;',
                         'Origin' => $this->authressLoginHostUrl
                     ]
                 ]
@@ -298,7 +298,7 @@ class LoginClient
                     'headers' => [
                         'Cookie' => 'authress-session=' . ($_COOKIE["authress-session"] ?? ''),
                         'Authorization' => 'Bearer ' . $token,
-                        'User-Agent' => 'PHP AuthressSDK',
+                        'User-Agent' => 'Authress SDK; PHP; ;',
                         'Origin' => $this->authressLoginHostUrl
                     ],
                     'json' => [
@@ -396,7 +396,7 @@ class LoginClient
                 '/api/authentication',
                 [
                     'headers' => [
-                        'User-Agent' => 'PHP AuthressSDK',
+                        'User-Agent' => 'Authress SDK; PHP; ;',
                         'Origin' => $this->authressLoginHostUrl
                     ],
                     'json' => [
