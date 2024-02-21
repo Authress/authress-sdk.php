@@ -1,5 +1,8 @@
-# AuthressSDK
+<p id="main" align="center">
+  <img src="https://authress.io/static/images/linkedin-banner.png" alt="Authress media banner">
+</p>
 
+# Authress SDK for PHP
 
 ## Installation & Usage
 Install authress-sdk for usage of the API:
