@@ -1,6 +1,6 @@
 <?php
 /**
- * Invite
+ * InviteStatement
  *
  * @category Class
  *
@@ -15,17 +15,15 @@ use ArrayAccess;
 use AuthressSdk\ObjectSerializer;
 
 /**
- * Invite Class Doc Comment
+ * InviteStatement Class Doc Comment
  *
- * @category    Class
+ * @category Class
  *
- * @description The user invite used to invite users to your application.
+ * @author   Authress Developers
  *
- * @author      Authress Developers
- *
- * @link        https://authress.io/app/#/api
+ * @link     https://authress.io/app/#/api
  */
-class Invite implements ModelInterface, ArrayAccess
+class InviteStatement implements ModelInterface, ArrayAccess
 {
     public const DISCRIMINATOR = null;
 
@@ -34,7 +32,7 @@ class Invite implements ModelInterface, ArrayAccess
      *
      * @var string
      */
-    protected static $swaggerModelName = 'Invite';
+    protected static $swaggerModelName = 'InviteStatement';
 
     /**
      * Array of property to type mappings. Used for (de)serialization
@@ -42,8 +40,8 @@ class Invite implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $swaggerTypes = [
-        'email' => '',
-        'statements' => '\AuthressSdk\Model\InviteStatement[]'
+        'roles' => 'string[]',
+        'resources' => '\AuthressSdk\Model\V1recordsResources[]'
     ];
 
     /**
@@ -52,8 +50,8 @@ class Invite implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $swaggerFormats = [
-        'email' => null,
-        'statements' => null
+        'roles' => null,
+        'resources' => null
     ];
     /**
      * Array of attributes where the key is the local name,
@@ -62,8 +60,8 @@ class Invite implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $attributeMap = [
-        'email' => 'email',
-        'statements' => 'statements'
+        'roles' => 'roles',
+        'resources' => 'resources'
     ];
     /**
      * Array of attributes to setter functions (for deserialization of responses)
@@ -71,8 +69,8 @@ class Invite implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $setters = [
-        'email' => 'setEmail',
-        'statements' => 'setStatements'
+        'roles' => 'setRoles',
+        'resources' => 'setResources'
     ];
     /**
      * Array of attributes to getter functions (for serialization of requests)
@@ -80,8 +78,8 @@ class Invite implements ModelInterface, ArrayAccess
      * @var string[]
      */
     protected static $getters = [
-        'email' => 'getEmail',
-        'statements' => 'getStatements'
+        'roles' => 'getRoles',
+        'resources' => 'getResources'
     ];
     /**
      * Associative array for storing property values
@@ -98,8 +96,8 @@ class Invite implements ModelInterface, ArrayAccess
      */
     public function __construct(array $data = null)
     {
-        $this->container['email'] = $data['email'] ?? null;
-        $this->container['statements'] = $data['statements'] ?? null;
+        $this->container['roles'] = $data['roles'] ?? null;
+        $this->container['resources'] = $data['resources'] ?? null;
     }
 
     /**
@@ -173,54 +171,59 @@ class Invite implements ModelInterface, ArrayAccess
     {
         $invalidProperties = [];
 
-        if ($this->container['statements'] === null) {
-            $invalidProperties[] = "'statements' can't be null";
+        if ($this->container['roles'] === null) {
+            $invalidProperties[] = "'roles' can't be null";
+        }
+        if ($this->container['resources'] === null) {
+            $invalidProperties[] = "'resources' can't be null";
         }
         return $invalidProperties;
     }
 
     /**
-     * Gets email
+     * Gets roles
+     *
+     * @return string[]
      */
-    public function getEmail()
+    public function getRoles()
     {
-        return $this->container['email'];
+        return $this->container['roles'];
     }
 
     /**
-     * Sets email
+     * Sets roles
      *
-     * @param $email Only used when the invite includes Authress specific permissions. If no Authress permissions are defined in the statements, then the email will not be used.
+     * @param string[] $roles roles
      *
      * @return $this
      */
-    public function setEmail($email)
+    public function setRoles($roles)
     {
-        $this->container['email'] = $email;
+        $this->container['roles'] = $roles;
 
         return $this;
     }
 
     /**
-     * Gets statements
+     * Gets resources
      *
-     * @return \AuthressSdk\Model\InviteStatement[]
+     * @return \AuthressSdk\Model\V1recordsResources[]
      */
-    public function getStatements()
+    public function getResources()
     {
-        return $this->container['statements'];
+        return $this->container['resources'];
     }
 
     /**
-     * Sets statements
+     * Sets resources
      *
-     * @param \AuthressSdk\Model\InviteStatement[] $statements A list of statements which match roles to resources. The invited user will all statements apply to them
+     * @param \AuthressSdk\Model\V1recordsResources[] $resources resources
      *
      * @return $this
      */
-    public function setStatements($statements)
+    public function setResources($resources)
     {
-        $this->container['statements'] = $statements;
+        $this->container['resources'] = $resources;
 
         return $this;
     }
