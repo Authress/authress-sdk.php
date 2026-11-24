@@ -23,6 +23,7 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 
 /**
  * LoginClient Class Doc Comment
@@ -51,7 +52,7 @@ class LoginClient
 
     public function __construct(string $authressLoginHostUrl, string $applicationId)
     {
-        $this->authressLoginHostUrl = $authressLoginHostUrl;
+        $this->authressLoginHostUrl = rtrim($authressLoginHostUrl, '/');
         $this->applicationId = $applicationId;
 
         $this->cookieJar = new CookieJar();
@@ -457,10 +458,11 @@ class LoginClient
 
         $jwk = $this->getJwk($keyId);
 
-        $config->setValidationConstraints(new Constraint\LooseValidAt(SystemClock::fromUTC()));
-        $config->setValidationConstraints(new Constraint\IssuedBy($expectedIss));
-        $signer = new Signer\Eddsa();
-        $config->setValidationConstraints(new Constraint\SignedWith($signer, $jwk));
+        $config->setValidationConstraints(
+            new Constraint\LooseValidAt(SystemClock::fromUTC()),
+            new Constraint\IssuedBy($expectedIss),
+            new Constraint\SignedWith(new Signer\Eddsa(), $jwk)
+        );
         $constraints = $config->validationConstraints();
 
         try {
@@ -473,21 +475,25 @@ class LoginClient
         }
     }
 
+    protected function fetchJwks(): array
+    {
+        $client = new Client(['base_uri' => $this->authressLoginHostUrl, 'decode_content' => false]);
+
+        $response = $client->request('GET', '/.well-known/openid-configuration/jwks');
+        return json_decode($response->getBody()->getContents())->keys;
+    }
+
     private function getJwk($kid)
     {
         if (isset(self::$jwkCache[$kid])) {
             return self::$jwkCache[$kid];
         }
 
-        if (isset($_SESSION['jwk'])) {
-            return $_SESSION['jwk'];
+        if (isset($_SESSION['authress_jwk'][$kid])) {
+            return $_SESSION['authress_jwk'][$kid];
         }
 
-        $expectedIss = $this->authressLoginHostUrl;
-        $client = new Client(['base_uri' => $expectedIss, 'decode_content' => false]);
-
-        $response = $client->request('GET', '/.well-known/openid-configuration/jwks');
-        $keys = json_decode($response->getBody()->getContents())->keys;
+        $keys = $this->fetchJwks();
 
         $jwk = null;
         foreach ($keys as $element) {
@@ -502,7 +508,7 @@ class LoginClient
             throw new Exception("Unauthorized");
         }
         self::$jwkCache[$kid] = $jwk;
-        return $_SESSION['jwk'] = $jwk;
+        $_SESSION['authress_jwk'][$kid] = $jwk;
         return $jwk;
     }
 }
