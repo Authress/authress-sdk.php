@@ -26,6 +26,9 @@ class JwksStubLoginClient extends LoginClient
     }
 }
 
+/**
+ * @covers \AuthressSdk\Login\LoginClient
+ */
 class LoginClientVerifyTokenTest extends TestCase
 {
     private const HOST = 'https://authress.company.com';
